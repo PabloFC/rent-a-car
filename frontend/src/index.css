@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .bg-hero {
+    background-image: url("/images/landing/header.jpg");
+    background-position: center 80%;
+  }
+  .bg-economico {
+    background-image: url("/images/landing/economico.jpg");
+    background-position: center 70%;
+  }
+  .bg-suv {
+    background-image: url("/images/landing/suv.jpg");
+    background-position: center center;
+  }
+  .bg-premium {
+    background-image: url("/images/landing/premium.jpg");
+    background-position: center center;
+  }
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
