@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import prisma from "./lib/prisma.js";
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ app.use(express.json());
 // Rutas
 app.get("/", (req, res) => {
   res.json({
-    mensaje: "🚗 API de Rent a Car funcionando",
+    mensaje: "API de Rent a Car funcionando",
     version: "1.0.0",
     status: "ok",
   });
@@ -39,6 +40,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  try {
+    await prisma.$connect();
+    console.log("✅ Conectado a la base de datos PostgreSQL");
+  } catch (error) {
+    console.error("❌ Error al conectar con la base de datos:", error.message);
+  }
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
 });

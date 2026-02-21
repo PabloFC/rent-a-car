@@ -1,0 +1,96 @@
+// Prisma Schema - RentaCar
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// MODELOS
+// ─────────────────────────────────────────
+
+model Usuario {
+    id       Int      @id @default(autoincrement())
+    nombre   String
+    email    String   @unique
+    password String
+    rol      Rol      @default(USER)
+    creadoEn DateTime @default(now())
+
+    reservas Reserva[]
+
+    @@map("usuarios")
+}
+
+model Auto {
+    id           Int      @id @default(autoincrement())
+    marca        String
+    modelo       String
+    anio         Int
+    precioPorDia Decimal  @db.Decimal(10, 2)
+    imagen       String?
+    disponible   Boolean  @default(true)
+    descripcion  String?
+    creadoEn     DateTime @default(now())
+
+    reservas Reserva[]
+
+    @@map("autos")
+}
+
+model Reserva {
+    id          Int           @id @default(autoincrement())
+    usuarioId   Int
+    autoId      Int
+    fechaInicio DateTime
+    fechaFin    DateTime
+    montoTotal  Decimal       @db.Decimal(10, 2)
+    estado      EstadoReserva @default(PENDIENTE)
+    creadoEn    DateTime      @default(now())
+
+    usuario Usuario @relation(fields: [usuarioId], references: [id])
+    auto    Auto    @relation(fields: [autoId], references: [id])
+    pago    Pago?
+
+    @@map("reservas")
+}
+
+model Pago {
+    id        Int        @id @default(autoincrement())
+    reservaId Int        @unique
+    monto     Decimal    @db.Decimal(10, 2)
+    estado    EstadoPago @default(PENDIENTE)
+    metodo    String?
+    fecha     DateTime   @default(now())
+
+    reserva Reserva @relation(fields: [reservaId], references: [id])
+
+    @@map("pagos")
+}
+
+// ─────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────
+
+enum Rol {
+    USER
+    ADMIN
+}
+
+enum EstadoReserva {
+    PENDIENTE
+    CONFIRMADA
+    CANCELADA
+    COMPLETADA
+}
+
+enum EstadoPago {
+    PENDIENTE
+    PAGADO
+    RECHAZADO
+    REEMBOLSADO
+}
