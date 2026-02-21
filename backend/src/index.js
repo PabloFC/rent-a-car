@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import prisma from "./lib/prisma.js";
+import authRoutes from "./routes/auth.routes.js";
 
 dotenv.config();
 
@@ -21,8 +22,8 @@ app.get("/", (req, res) => {
   });
 });
 
-// Rutas de la API (se añadirán pronto)
-// app.use('/api/auth', authRoutes);
+// Rutas de la API
+app.use("/api/auth", authRoutes);
 // app.use('/api/autos', autosRoutes);
 // app.use('/api/reservas', reservasRoutes);
 
