@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import prisma from "./lib/prisma.js";
 import authRoutes from "./routes/auth.routes.js";
 import autosRoutes from "./routes/autos.routes.js";
+import reservasRoutes from "./routes/reservas.routes.js";
 
 dotenv.config();
 
@@ -29,7 +30,7 @@ app.use("/uploads", express.static("uploads"));
 // Rutas de la API
 app.use("/api/auth", authRoutes);
 app.use("/api/autos", autosRoutes);
-// app.use('/api/reservas', reservasRoutes);
+app.use("/api/reservas", reservasRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {
