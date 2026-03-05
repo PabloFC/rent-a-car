@@ -5,6 +5,8 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
+import MisReservas from "./pages/MisReservas";
+import Checkout from "./pages/Checkout";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/registro" element={<Registro />} />
+              <Route path="/mis-reservas" element={<MisReservas />} />
+              <Route path="/reservas/:id/pagar" element={<Checkout />} />
             </Routes>
           </main>
           <Footer />

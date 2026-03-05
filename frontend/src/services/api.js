@@ -97,6 +97,29 @@ export const reservasService = {
     const response = await api.get("/reservas/mis-reservas");
     return response.data;
   },
+
+  obtenerPorId: async (id) => {
+    const response = await api.get(`/reservas/${id}`);
+    return response.data;
+  },
+
+  cancelar: async (id) => {
+    const response = await api.patch(`/reservas/${id}/cancelar`);
+    return response.data;
+  },
+};
+
+// Servicios de pagos
+export const pagosService = {
+  procesar: async (pagoData) => {
+    const response = await api.post("/pagos", pagoData);
+    return response.data;
+  },
+
+  obtenerPorReserva: async (reservaId) => {
+    const response = await api.get(`/pagos/${reservaId}`);
+    return response.data;
+  },
 };
 
 export default api;
