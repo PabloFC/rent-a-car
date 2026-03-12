@@ -84,6 +84,13 @@ export const autosService = {
     const response = await api.delete(`/autos/${id}`);
     return response.data;
   },
+
+  subirImagen: async (id, formData) => {
+    const response = await api.post(`/autos/${id}/imagen`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
 };
 
 // Servicios de reservas
@@ -118,6 +125,25 @@ export const pagosService = {
 
   obtenerPorReserva: async (reservaId) => {
     const response = await api.get(`/pagos/${reservaId}`);
+    return response.data;
+  },
+};
+
+// Servicios de administración
+export const adminService = {
+  obtenerStats: async () => {
+    const response = await api.get("/admin/stats");
+    return response.data;
+  },
+
+  listarReservas: async (estado) => {
+    const params = estado ? `?estado=${estado}` : "";
+    const response = await api.get(`/reservas${params}`);
+    return response.data;
+  },
+
+  cambiarEstadoReserva: async (id, estado) => {
+    const response = await api.patch(`/reservas/${id}/estado`, { estado });
     return response.data;
   },
 };

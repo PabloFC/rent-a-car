@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const esAdmin = () => {
-    return usuario?.rol === "admin";
+    return usuario?.rol === "ADMIN";
   };
 
   return (

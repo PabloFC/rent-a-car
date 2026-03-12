@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes.js";
 import autosRoutes from "./routes/autos.routes.js";
 import reservasRoutes from "./routes/reservas.routes.js";
 import pagosRoutes from "./routes/pago.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/autos", autosRoutes);
 app.use("/api/reservas", reservasRoutes);
 app.use("/api/pagos", pagosRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Manejo de errores 404
 app.use((req, res) => {

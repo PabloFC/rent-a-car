@@ -42,8 +42,16 @@ export const registro = async (req, res) => {
       },
     });
 
+    // Generar JWT para que el usuario quede logueado automáticamente
+    const token = jwt.sign(
+      { id: nuevoUsuario.id, email: nuevoUsuario.email, rol: nuevoUsuario.rol },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" },
+    );
+
     return res.status(201).json({
       mensaje: "Usuario registrado correctamente",
+      token,
       usuario: nuevoUsuario,
     });
   } catch (error) {
