@@ -42,18 +42,21 @@ export const FLOTA = [
     badge: "Desde 25€/día",
     title: "Económicos",
     desc: "Perfectos para ciudad y trayectos cortos.",
+    slug: "economicos",
   },
   {
     cls: "bg-suv",
     badge: "Desde 45€/día",
     title: "SUV",
     desc: "Comodidad y espacio para toda la familia.",
+    slug: "suv",
   },
   {
     cls: "bg-premium",
     badge: "Desde 80€/día",
     title: "Premium",
     desc: "Lujo y prestaciones superiores.",
+    slug: "premium",
   },
 ];
 

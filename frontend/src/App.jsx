@@ -11,6 +11,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminAutos from "./pages/admin/AdminAutos";
 import AdminReservas from "./pages/admin/AdminReservas";
+import Flota from "./pages/Flota";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                     <Route path="/registro" element={<Registro />} />
                     <Route path="/mis-reservas" element={<MisReservas />} />
                     <Route path="/reservas/:id/pagar" element={<Checkout />} />
+                    <Route path="/flota/:tipo" element={<Flota />} />
                   </Routes>
                 </main>
                 <Footer />

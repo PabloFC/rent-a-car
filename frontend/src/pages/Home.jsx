@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import SectionHeader from "../components/SectionHeader";
+import Icon from "../components/Icon";
 import { STATS, VENTAJAS, FLOTA, CAMPOS_FECHA } from "../data/homeData";
 
 // ── Página ────────────────────────────────────────────────────────────────────
@@ -100,19 +101,7 @@ function Home() {
                 <div>
                   <div className="flex items-center gap-3 mb-2">
                     <div className="bg-amber-500/10 p-2 rounded-lg">
-                      <svg
-                        className="w-5 h-5 text-amber-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d={path}
-                        />
-                      </svg>
+                      <Icon path={path} className="w-5 h-5 text-amber-400" />
                     </div>
                     <h3 className="font-bold text-white text-base">{title}</h3>
                   </div>
@@ -135,7 +124,7 @@ function Home() {
             subtitle="Disponemos de una amplia gama de vehículos para adaptarnos a tus necesidades"
           />
           <div className="grid md:grid-cols-3 gap-8">
-            {FLOTA.map(({ cls, badge, title, desc }) => (
+            {FLOTA.map(({ cls, badge, title, desc, slug }) => (
               <div
                 key={title}
                 className="group bg-gray-800 rounded-2xl overflow-hidden hover:ring-2 hover:ring-amber-500/50 hover:-translate-y-1 transition-all duration-300"
@@ -152,10 +141,10 @@ function Home() {
                 <div className="p-5 flex items-center justify-between">
                   <p className="text-gray-400 text-sm">{desc}</p>
                   <Link
-                    to="/autos"
+                    to={`/flota/${slug}`}
                     className="shrink-0 ml-4 bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold px-4 py-2 rounded-lg transition-colors"
                   >
-                    Ver →
+                    Ver vehículos →
                   </Link>
                 </div>
               </div>
