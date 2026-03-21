@@ -76,7 +76,9 @@ function ModalReserva({ vehiculo, onCerrar }) {
         {/* ── Header ── */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <div>
-            <h2 className="font-bold text-gray-900 text-lg">Reservar vehículo</h2>
+            <h2 className="font-bold text-gray-900 text-lg">
+              Reservar vehículo
+            </h2>
             <p className="text-sm text-gray-500">
               {vehiculo.marca} {vehiculo.modelo} · {vehiculo.precio}€/día
             </p>

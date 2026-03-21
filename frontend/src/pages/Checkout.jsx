@@ -99,8 +99,13 @@ function Checkout() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{errorCarga || "Reserva no encontrada."}</p>
-          <Link to="/mis-reservas" className="text-amber-600 hover:underline font-medium">
+          <p className="text-red-600 mb-4">
+            {errorCarga || "Reserva no encontrada."}
+          </p>
+          <Link
+            to="/mis-reservas"
+            className="text-amber-600 hover:underline font-medium"
+          >
             Volver a mis reservas
           </Link>
         </div>
@@ -117,11 +122,23 @@ function Checkout() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 font-serif mb-2">¡Pago exitoso!</h2>
+          <h2 className="text-2xl font-bold text-gray-900 font-serif mb-2">
+            ¡Pago exitoso!
+          </h2>
           <p className="text-gray-500 mb-6">{resultado.mensaje}</p>
           <div className="bg-gray-50 rounded-lg p-4 text-sm text-left mb-6 border border-gray-100">
             <div className="flex justify-between mb-1">
@@ -133,7 +150,8 @@ function Checkout() {
             <div className="flex justify-between mb-1">
               <span className="text-gray-500">Período</span>
               <span className="font-medium text-gray-800">
-                {formatFecha(reserva.fechaInicio)} → {formatFecha(reserva.fechaFin)}
+                {formatFecha(reserva.fechaInicio)} →{" "}
+                {formatFecha(reserva.fechaFin)}
               </span>
             </div>
             <div className="flex justify-between">
@@ -159,22 +177,26 @@ function Checkout() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-2xl mx-auto">
-
         {/* Breadcrumb */}
         <div className="text-sm text-gray-500 mb-6">
-          <Link to="/mis-reservas" className="hover:text-amber-600">Mis reservas</Link>
+          <Link to="/mis-reservas" className="hover:text-amber-600">
+            Mis reservas
+          </Link>
           <span className="mx-2">/</span>
           <span className="text-gray-800 font-medium">Pago</span>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 font-serif mb-8">Finalizar pago</h1>
+        <h1 className="text-3xl font-bold text-gray-900 font-serif mb-8">
+          Finalizar pago
+        </h1>
 
         <div className="grid md:grid-cols-5 gap-6">
-
           {/* ── Formulario de pago ── */}
           <div className="md:col-span-3">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <h2 className="font-semibold text-gray-900 mb-5">Método de pago</h2>
+              <h2 className="font-semibold text-gray-900 mb-5">
+                Método de pago
+              </h2>
 
               {/* Selector de método */}
               <div className="flex gap-3 mb-6">
@@ -189,7 +211,11 @@ function Checkout() {
                         : "bg-white text-gray-600 border-gray-300 hover:border-amber-400"
                     }`}
                   >
-                    {m === "TARJETA" ? "💳 Tarjeta" : m === "TRANSFERENCIA" ? "🏦 Transferencia" : "💵 Efectivo"}
+                    {m === "TARJETA"
+                      ? "💳 Tarjeta"
+                      : m === "TRANSFERENCIA"
+                        ? "🏦 Transferencia"
+                        : "💵 Efectivo"}
                   </button>
                 ))}
               </div>
@@ -202,7 +228,6 @@ function Checkout() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
-
                 {/* Datos de tarjeta (solo si método = TARJETA) */}
                 {metodo === "TARJETA" && (
                   <>
@@ -227,7 +252,9 @@ function Checkout() {
                       <input
                         type="text"
                         value={tarjeta}
-                        onChange={(e) => setTarjeta(formatTarjeta(e.target.value))}
+                        onChange={(e) =>
+                          setTarjeta(formatTarjeta(e.target.value))
+                        }
                         required
                         placeholder="1234 5678 9012 3456"
                         maxLength={19}
@@ -244,8 +271,11 @@ function Checkout() {
                           type="text"
                           value={expiry}
                           onChange={(e) => {
-                            let v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                            if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2);
+                            let v = e.target.value
+                              .replace(/\D/g, "")
+                              .slice(0, 4);
+                            if (v.length >= 3)
+                              v = v.slice(0, 2) + "/" + v.slice(2);
                             setExpiry(v);
                           }}
                           required
@@ -255,11 +285,17 @@ function Checkout() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">CVV</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                          CVV
+                        </label>
                         <input
                           type="text"
                           value={cvv}
-                          onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                          onChange={(e) =>
+                            setCvv(
+                              e.target.value.replace(/\D/g, "").slice(0, 4),
+                            )
+                          }
                           required
                           placeholder="123"
                           maxLength={4}
@@ -276,14 +312,20 @@ function Checkout() {
                     <p>Banco: Banco Nacional</p>
                     <p>CBU: 0000000000000000000000</p>
                     <p>Alias: RENTACAR.DEMO</p>
-                    <p className="mt-2 text-blue-600">Al confirmar, tu reserva será procesada.</p>
+                    <p className="mt-2 text-blue-600">
+                      Al confirmar, tu reserva será procesada.
+                    </p>
                   </div>
                 )}
 
                 {metodo === "EFECTIVO" && (
                   <div className="bg-green-50 border border-green-200 text-green-800 rounded p-4 text-sm">
                     <p className="font-semibold mb-1">Pago en sucursal</p>
-                    <p>Presenta tu número de reserva <strong>#{reserva.id}</strong> en cualquiera de nuestras sucursales para abonar en efectivo.</p>
+                    <p>
+                      Presenta tu número de reserva{" "}
+                      <strong>#{reserva.id}</strong> en cualquiera de nuestras
+                      sucursales para abonar en efectivo.
+                    </p>
                   </div>
                 )}
 
@@ -296,7 +338,10 @@ function Checkout() {
                     onChange={(e) => setSimularFallo(e.target.checked)}
                     className="w-4 h-4 accent-amber-500"
                   />
-                  <label htmlFor="simularFallo" className="text-xs text-gray-500 select-none">
+                  <label
+                    htmlFor="simularFallo"
+                    className="text-xs text-gray-500 select-none"
+                  >
                     ⚡ Simular fallo de pago (modo demo)
                   </label>
                 </div>
@@ -333,23 +378,31 @@ function Checkout() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-4xl">🚗</div>
+                  <div className="w-full h-full flex items-center justify-center text-4xl">
+                    🚗
+                  </div>
                 )}
               </div>
 
               <p className="font-bold text-gray-900 mb-1">
                 {reserva.auto?.marca} {reserva.auto?.modelo}
               </p>
-              <p className="text-xs text-gray-400 mb-4">Reserva #{reserva.id}</p>
+              <p className="text-xs text-gray-400 mb-4">
+                Reserva #{reserva.id}
+              </p>
 
               <div className="space-y-2 text-sm border-t border-gray-100 pt-4">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Recogida</span>
-                  <span className="font-medium text-gray-800">{formatFecha(reserva.fechaInicio)}</span>
+                  <span className="font-medium text-gray-800">
+                    {formatFecha(reserva.fechaInicio)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Devolución</span>
-                  <span className="font-medium text-gray-800">{formatFecha(reserva.fechaFin)}</span>
+                  <span className="font-medium text-gray-800">
+                    {formatFecha(reserva.fechaFin)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Días</span>

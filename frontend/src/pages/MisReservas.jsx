@@ -77,11 +77,14 @@ function MisReservas() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto">
-
         {/* Encabezado */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 font-serif mb-1">Mis Reservas</h1>
-          <p className="text-gray-500">Gestiona y realiza el pago de tus reservas activas.</p>
+          <h1 className="text-3xl font-bold text-gray-900 font-serif mb-1">
+            Mis Reservas
+          </h1>
+          <p className="text-gray-500">
+            Gestiona y realiza el pago de tus reservas activas.
+          </p>
         </div>
 
         {/* Error */}
@@ -95,8 +98,12 @@ function MisReservas() {
         {reservas.length === 0 && !error && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
             <div className="text-5xl mb-4">🚗</div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">No tienes reservas aún</h3>
-            <p className="text-gray-500 mb-6">Explora nuestra flota y reserva tu vehículo ideal.</p>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              No tienes reservas aún
+            </h3>
+            <p className="text-gray-500 mb-6">
+              Explora nuestra flota y reserva tu vehículo ideal.
+            </p>
             <Link
               to="/"
               className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-2.5 rounded transition-colors"
@@ -111,7 +118,8 @@ function MisReservas() {
           {reservas.map((reserva) => {
             const estadoPago = reserva.pago?.estado ?? "PENDIENTE";
             const puedesPagar =
-              (reserva.estado === "PENDIENTE" || reserva.estado === "CONFIRMADA") &&
+              (reserva.estado === "PENDIENTE" ||
+                reserva.estado === "CONFIRMADA") &&
               estadoPago !== "PAGADO";
             const puedeCancelar =
               reserva.estado === "PENDIENTE" || reserva.estado === "CONFIRMADA";
@@ -131,7 +139,9 @@ function MisReservas() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">🚗</div>
+                      <div className="w-full h-full flex items-center justify-center text-4xl">
+                        🚗
+                      </div>
                     )}
                   </div>
 
@@ -145,7 +155,9 @@ function MisReservas() {
                             ({reserva.auto?.anio})
                           </span>
                         </h3>
-                        <p className="text-sm text-gray-500">Reserva #{reserva.id}</p>
+                        <p className="text-sm text-gray-500">
+                          Reserva #{reserva.id}
+                        </p>
                       </div>
 
                       {/* Badge estado reserva */}
@@ -159,15 +171,25 @@ function MisReservas() {
                     {/* Fechas y monto */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm mb-4">
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Recogida</p>
-                        <p className="font-medium text-gray-800">{formatFecha(reserva.fechaInicio)}</p>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">
+                          Recogida
+                        </p>
+                        <p className="font-medium text-gray-800">
+                          {formatFecha(reserva.fechaInicio)}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Devolución</p>
-                        <p className="font-medium text-gray-800">{formatFecha(reserva.fechaFin)}</p>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">
+                          Devolución
+                        </p>
+                        <p className="font-medium text-gray-800">
+                          {formatFecha(reserva.fechaFin)}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Total</p>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">
+                          Total
+                        </p>
                         <p className="font-bold text-amber-600 text-base">
                           {Number(reserva.montoTotal).toFixed(2)}€
                         </p>
@@ -176,7 +198,9 @@ function MisReservas() {
 
                     {/* Badge pago + acciones */}
                     <div className="flex items-center justify-between flex-wrap gap-2">
-                      <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${PAGO_BADGE[estadoPago]}`}>
+                      <span
+                        className={`text-xs font-medium px-2.5 py-1 rounded-full ${PAGO_BADGE[estadoPago]}`}
+                      >
                         Pago: {estadoPago}
                       </span>
 
@@ -187,7 +211,9 @@ function MisReservas() {
                             disabled={cancelando === reserva.id}
                             className="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 hover:border-red-400 px-3 py-1.5 rounded transition-colors disabled:opacity-50"
                           >
-                            {cancelando === reserva.id ? "Cancelando..." : "Cancelar"}
+                            {cancelando === reserva.id
+                              ? "Cancelando..."
+                              : "Cancelar"}
                           </button>
                         )}
                         {puedesPagar && (

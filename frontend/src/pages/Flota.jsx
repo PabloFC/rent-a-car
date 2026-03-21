@@ -102,8 +102,12 @@ function Flota() {
 
             {vehiculos.length === 0 ? (
               <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center">
-                <p className="text-gray-300 font-medium">No hay vehículos en esta categoría.</p>
-                <p className="text-gray-500 text-sm mt-2">Añade vehículos desde el panel admin para verlos aquí.</p>
+                <p className="text-gray-300 font-medium">
+                  No hay vehículos en esta categoría.
+                </p>
+                <p className="text-gray-500 text-sm mt-2">
+                  Añade vehículos desde el panel admin para verlos aquí.
+                </p>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -111,7 +111,9 @@ async function main() {
     await prisma.auto.createMany({ data: AUTOS_DEMO });
     console.log(`✅ Se cargaron ${AUTOS_DEMO.length} autos demo.`);
   } else {
-    console.log(`⚠️  Ya existen ${totalAutos} autos. No se cargaron autos demo.`);
+    console.log(
+      `⚠️  Ya existen ${totalAutos} autos. No se cargaron autos demo.`,
+    );
   }
 }
 
