@@ -169,7 +169,7 @@ function MisReservas() {
                       <div>
                         <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Total</p>
                         <p className="font-bold text-amber-600 text-base">
-                          ${Number(reserva.montoTotal).toFixed(2)}
+                          {Number(reserva.montoTotal).toFixed(2)}€
                         </p>
                       </div>
                     </div>

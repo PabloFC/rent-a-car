@@ -132,7 +132,9 @@ export const pagosService = {
 // Servicios de administración
 export const adminService = {
   obtenerStats: async () => {
-    const response = await api.get("/admin/stats");
+    const response = await api.get("/admin/stats", {
+      params: { _t: Date.now() },
+    });
     return response.data;
   },
 

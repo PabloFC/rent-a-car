@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { adminService } from "../../services/api";
 import Icon from "../../components/Icon";
@@ -45,21 +45,58 @@ const formatFecha = (fecha) =>
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [actualizando, setActualizando] = useState(false);
   const [error, setError] = useState("");
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
 
-  useEffect(() => {
-    const cargar = async () => {
-      try {
-        const data = await adminService.obtenerStats();
-        setStats(data);
-      } catch {
+  const cargar = useCallback(async ({ silencioso = false } = {}) => {
+    if (silencioso) {
+      setActualizando(true);
+    } else {
+      setCargando(true);
+    }
+
+    try {
+      const data = await adminService.obtenerStats();
+      setStats(data);
+      setError("");
+      setUltimaActualizacion(new Date());
+    } catch {
+      if (!silencioso) {
         setError("No se pudieron cargar las estadísticas.");
-      } finally {
+      }
+    } finally {
+      if (silencioso) {
+        setActualizando(false);
+      } else {
         setCargando(false);
       }
-    };
-    cargar();
+    }
   }, []);
+
+  useEffect(() => {
+    cargar();
+
+    const intervalId = window.setInterval(() => {
+      cargar({ silencioso: true });
+    }, 30000);
+
+    const onFocus = () => cargar({ silencioso: true });
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        cargar({ silencioso: true });
+      }
+    };
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [cargar]);
 
   if (cargando) {
     return (
@@ -81,10 +118,35 @@ function AdminDashboard() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold text-gray-900 font-serif mb-1">
-        Dashboard
-      </h1>
-      <p className="text-gray-500 text-sm mb-8">Resumen general del sistema.</p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 font-serif mb-1">
+            Dashboard
+          </h1>
+          <p className="text-gray-500 text-sm">Resumen general del sistema.</p>
+          {ultimaActualizacion && (
+            <p className="text-xs text-gray-400 mt-1">
+              Actualizado: {ultimaActualizacion.toLocaleTimeString("es-ES")}
+            </p>
+          )}
+        </div>
+
+        <button
+          onClick={() => cargar({ silencioso: true })}
+          disabled={actualizando}
+          className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded border border-gray-300 text-gray-600 hover:border-amber-400 hover:text-amber-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        >
+          {actualizando ? (
+            <span className="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Icon
+              path="M4 4v5h.582m14.836 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0A8.003 8.003 0 015.163 13M15 15h-6"
+              className="w-4 h-4"
+            />
+          )}
+          {actualizando ? "Actualizando..." : "Actualizar"}
+        </button>
+      </div>
 
       {/* ── Tarjetas de stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -112,8 +174,8 @@ function AdminDashboard() {
         <StatCard
           icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V5m0 11v3M4 7h16M4 17h16M3 5h18v14H3V5z"
           label="Ingresos este mes"
-          value={`$${stats.ingresos.mes.toFixed(2)}`}
-          sub={`$${stats.ingresos.total.toFixed(2)} total`}
+          value={`${stats.ingresos.mes.toFixed(2)}€`}
+          sub={`${stats.ingresos.total.toFixed(2)}€ total`}
           color="bg-green-100 text-green-700"
         />
       </div>

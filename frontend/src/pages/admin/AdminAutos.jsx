@@ -127,7 +127,7 @@ function AutoModal({ auto, onCerrar, onGuardado }) {
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Precio/día (USD) *
+                Precio/día (EUR) *
               </label>
               <input
                 name="precioPorDia"
@@ -452,7 +452,7 @@ function AdminAutos() {
                       </td>
                       <td className="px-5 py-3 text-gray-600">{auto.anio}</td>
                       <td className="px-5 py-3 font-semibold text-amber-600">
-                        ${Number(auto.precioPorDia).toFixed(2)}
+                        {Number(auto.precioPorDia).toFixed(2)}€
                       </td>
                       <td className="px-5 py-3">
                         <span

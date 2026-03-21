@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { reservasService } from "../services/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -24,20 +25,13 @@ const formatExpiry = (v) =>
     .slice(0, 4)
     .replace(/^(\d{2})(\d)/, "$1/$2");
 
-const formatFecha = (iso) =>
-  new Date(iso).toLocaleDateString("es-ES", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-
 // ── Componente ────────────────────────────────────────────────────────────────
 
 function ModalReserva({ vehiculo, onCerrar }) {
   const { estaAutenticado, usuario } = useAuth();
   const navigate = useNavigate();
 
-  const [paso, setPaso] = useState("fechas"); // fechas | pago | resultado
+  const [paso, setPaso] = useState("fechas"); // fechas | pago
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [nombre, setNombre] = useState(usuario?.nombre ?? "");
@@ -45,20 +39,32 @@ function ModalReserva({ vehiculo, onCerrar }) {
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [procesando, setProcesando] = useState(false);
-  const [exito, setExito] = useState(false);
+  const [errorReserva, setErrorReserva] = useState("");
 
   const dias = calcularDias(fechaInicio, fechaFin);
   const total = dias * vehiculo.precio;
 
-  const handlePagar = (e) => {
+  const handlePagar = async (e) => {
     e.preventDefault();
+    setErrorReserva("");
     setProcesando(true);
-    // Simulación de 1.8s — aprueba si el vehículo está disponible
-    setTimeout(() => {
+
+    try {
+      const data = await reservasService.crear({
+        autoId: Number(vehiculo.id),
+        fechaInicio,
+        fechaFin,
+      });
+
+      navigate(`/reservas/${data.reserva.id}/pagar`);
+      onCerrar();
+    } catch (err) {
+      setErrorReserva(
+        err.response?.data?.error || "No se pudo crear la reserva.",
+      );
+    } finally {
       setProcesando(false);
-      setExito(vehiculo.disponible);
-      setPaso("resultado");
-    }, 1800);
+    }
   };
 
   return (
@@ -70,27 +76,17 @@ function ModalReserva({ vehiculo, onCerrar }) {
         {/* ── Header ── */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <div>
-            <h2 className="font-bold text-gray-900 text-lg">
-              {paso === "resultado"
-                ? exito
-                  ? "¡Reserva confirmada!"
-                  : "Pago rechazado"
-                : "Reservar vehículo"}
-            </h2>
-            {paso !== "resultado" && (
-              <p className="text-sm text-gray-500">
-                {vehiculo.marca} {vehiculo.modelo} · {vehiculo.precio}€/día
-              </p>
-            )}
+            <h2 className="font-bold text-gray-900 text-lg">Reservar vehículo</h2>
+            <p className="text-sm text-gray-500">
+              {vehiculo.marca} {vehiculo.modelo} · {vehiculo.precio}€/día
+            </p>
           </div>
-          {paso !== "resultado" && (
-            <button
-              onClick={onCerrar}
-              className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
-            >
-              ×
-            </button>
-          )}
+          <button
+            onClick={onCerrar}
+            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+          >
+            ×
+          </button>
         </div>
 
         {/* ── No autenticado ── */}
@@ -135,6 +131,7 @@ function ModalReserva({ vehiculo, onCerrar }) {
                   onChange={(e) => {
                     setFechaInicio(e.target.value);
                     setFechaFin("");
+                    setErrorReserva("");
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent"
                 />
@@ -147,7 +144,10 @@ function ModalReserva({ vehiculo, onCerrar }) {
                   type="date"
                   min={fechaInicio || hoy()}
                   value={fechaFin}
-                  onChange={(e) => setFechaFin(e.target.value)}
+                  onChange={(e) => {
+                    setFechaFin(e.target.value);
+                    setErrorReserva("");
+                  }}
                   disabled={!fechaInicio}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent disabled:opacity-40"
                 />
@@ -197,6 +197,12 @@ function ModalReserva({ vehiculo, onCerrar }) {
                 <span className="text-amber-600">{total}€</span>
               </div>
             </div>
+
+            {errorReserva && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+                {errorReserva}
+              </div>
+            )}
 
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
@@ -270,86 +276,14 @@ function ModalReserva({ vehiculo, onCerrar }) {
                 {procesando ? (
                   <>
                     <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                    Procesando...
+                    Creando reserva...
                   </>
                 ) : (
-                  `Pagar ${total}€`
+                  "Continuar al pago"
                 )}
               </button>
             </div>
           </form>
-        )}
-
-        {/* ── Paso: resultado ── */}
-        {paso === "resultado" && (
-          <div className="p-8 text-center">
-            {exito ? (
-              <>
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-green-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">
-                  ¡Reserva confirmada!
-                </h3>
-                <p className="text-gray-600 font-medium">
-                  {vehiculo.marca} {vehiculo.modelo}
-                </p>
-                <p className="text-gray-500 text-sm mt-1 mb-5">
-                  {formatFecha(fechaInicio)} → {formatFecha(fechaFin)} ·{" "}
-                  <span className="font-semibold text-gray-700">{total}€</span>
-                </p>
-                <button
-                  onClick={onCerrar}
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-black py-3 rounded-xl font-bold transition"
-                >
-                  Aceptar
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-red-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  Pago rechazado
-                </h3>
-                <p className="text-gray-500 text-sm mb-5">
-                  Este vehículo no está disponible en las fechas seleccionadas.
-                  Por favor elige otro vehículo.
-                </p>
-                <button
-                  onClick={onCerrar}
-                  className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition"
-                >
-                  Cerrar
-                </button>
-              </>
-            )}
-          </div>
         )}
       </div>
     </div>

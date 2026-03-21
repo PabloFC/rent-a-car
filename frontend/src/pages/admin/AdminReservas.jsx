@@ -188,7 +188,7 @@ function AdminReservas() {
                       </td>
 
                       <td className="px-5 py-3 font-bold text-amber-600">
-                        ${Number(r.montoTotal).toFixed(2)}
+                        {Number(r.montoTotal).toFixed(2)}€
                       </td>
 
                       <td className="px-5 py-3">

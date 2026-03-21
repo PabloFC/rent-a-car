@@ -139,7 +139,7 @@ function Checkout() {
             <div className="flex justify-between">
               <span className="text-gray-500">Total pagado</span>
               <span className="font-bold text-amber-600">
-                ${Number(reserva.montoTotal).toFixed(2)}
+                {Number(reserva.montoTotal).toFixed(2)}€
               </span>
             </div>
           </div>
@@ -312,7 +312,7 @@ function Checkout() {
                       Procesando...
                     </span>
                   ) : (
-                    `Pagar $${Number(reserva.montoTotal).toFixed(2)}`
+                    `Pagar ${Number(reserva.montoTotal).toFixed(2)}€`
                   )}
                 </button>
               </form>
@@ -358,13 +358,13 @@ function Checkout() {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Precio/día</span>
                   <span className="font-medium text-gray-800">
-                    ${Number(reserva.auto?.precioPorDia).toFixed(2)}
+                    {Number(reserva.auto?.precioPorDia).toFixed(2)}€
                   </span>
                 </div>
                 <div className="flex justify-between pt-3 border-t border-gray-100">
                   <span className="font-semibold text-gray-900">Total</span>
                   <span className="font-bold text-amber-600 text-lg">
-                    ${Number(reserva.montoTotal).toFixed(2)}
+                    {Number(reserva.montoTotal).toFixed(2)}€
                   </span>
                 </div>
               </div>
