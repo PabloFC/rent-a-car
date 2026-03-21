@@ -34,6 +34,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Manual",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "e2",
@@ -45,6 +46,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Manual",
         combustible: "Gasolina",
+        disponible: false,
       },
       {
         id: "e3",
@@ -56,6 +58,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Manual",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "e4",
@@ -67,6 +70,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Eléctrico",
+        disponible: true,
       },
       {
         id: "e5",
@@ -78,6 +82,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Manual",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "e6",
@@ -89,6 +94,7 @@ export const VEHICULOS = {
         puertas: 3,
         transmision: "Manual",
         combustible: "Gasolina",
+        disponible: false,
       },
       {
         id: "e7",
@@ -100,6 +106,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Manual",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "e8",
@@ -111,6 +118,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Híbrido",
+        disponible: true,
       },
     ],
   },
@@ -127,6 +135,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Híbrido",
+        disponible: true,
       },
       {
         id: "s2",
@@ -138,6 +147,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "s3",
@@ -149,6 +159,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Gasolina",
+        disponible: false,
       },
       {
         id: "s4",
@@ -160,6 +171,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Híbrido",
+        disponible: true,
       },
       {
         id: "s5",
@@ -171,6 +183,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "s6",
@@ -182,6 +195,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Híbrido",
+        disponible: false,
       },
       {
         id: "s7",
@@ -193,6 +207,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Manual",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "s8",
@@ -204,6 +219,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Híbrido",
+        disponible: true,
       },
     ],
   },
@@ -220,6 +236,7 @@ export const VEHICULOS = {
         puertas: 4,
         transmision: "Automático",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "p2",
@@ -231,6 +248,7 @@ export const VEHICULOS = {
         puertas: 4,
         transmision: "Automático",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "p3",
@@ -242,6 +260,7 @@ export const VEHICULOS = {
         puertas: 4,
         transmision: "Automático",
         combustible: "Gasolina",
+        disponible: false,
       },
       {
         id: "p4",
@@ -253,6 +272,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Híbrido",
+        disponible: true,
       },
       {
         id: "p5",
@@ -264,6 +284,7 @@ export const VEHICULOS = {
         puertas: 4,
         transmision: "Automático",
         combustible: "Eléctrico",
+        disponible: true,
       },
       {
         id: "p6",
@@ -275,6 +296,7 @@ export const VEHICULOS = {
         puertas: 2,
         transmision: "Automático",
         combustible: "Gasolina",
+        disponible: false,
       },
       {
         id: "p7",
@@ -286,6 +308,7 @@ export const VEHICULOS = {
         puertas: 4,
         transmision: "Automático",
         combustible: "Gasolina",
+        disponible: true,
       },
       {
         id: "p8",
@@ -297,6 +320,7 @@ export const VEHICULOS = {
         puertas: 5,
         transmision: "Automático",
         combustible: "Híbrido",
+        disponible: true,
       },
     ],
   },

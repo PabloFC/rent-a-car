@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { adminService } from "../../services/api";
+import Icon from "../../components/Icon";
 
 // ── Stat Card ─────────────────────────────────────────────────────────────────
 
@@ -8,7 +9,9 @@ function StatCard({ label, value, sub, color, icon }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
       <div className="flex items-start justify-between mb-3">
-        <span className="text-2xl">{icon}</span>
+        <span className="text-gray-500">
+          <Icon path={icon} className="w-6 h-6" />
+        </span>
         <span
           className={`text-xs font-semibold px-2 py-0.5 rounded-full ${color}`}
         >
@@ -86,28 +89,28 @@ function AdminDashboard() {
       {/* ── Tarjetas de stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
-          icon="🚗"
+          icon="M3 13l1-4a2 2 0 012-1.5h12a2 2 0 012 1.5l1 4M5 13h14M7 17a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2zM6 17h12"
           label="Vehículos totales"
           value={stats.autos.total}
           sub={`${stats.autos.disponibles} disponibles`}
           color="bg-blue-100 text-blue-700"
         />
         <StatCard
-          icon="👥"
+          icon="M17 20h5v-1a4 4 0 00-5-3.87M9 20H4v-1a4 4 0 015-3.87m8-4.13a4 4 0 11-8 0 4 4 0 018 0zM9 11a4 4 0 100-8 4 4 0 000 8z"
           label="Usuarios registrados"
           value={stats.usuarios.total}
           sub="Total"
           color="bg-purple-100 text-purple-700"
         />
         <StatCard
-          icon="📅"
+          icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
           label="Reservas totales"
           value={stats.reservas.total}
           sub={`${stats.reservas.pendientes} pendientes`}
           color="bg-yellow-100 text-yellow-700"
         />
         <StatCard
-          icon="💰"
+          icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V5m0 11v3M4 7h16M4 17h16M3 5h18v14H3V5z"
           label="Ingresos este mes"
           value={`$${stats.ingresos.mes.toFixed(2)}`}
           sub={`$${stats.ingresos.total.toFixed(2)} total`}

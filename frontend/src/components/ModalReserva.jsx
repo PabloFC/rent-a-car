@@ -1,0 +1,359 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const hoy = () => new Date().toISOString().split("T")[0];
+
+const calcularDias = (inicio, fin) => {
+  if (!inicio || !fin) return 0;
+  return Math.max(0, Math.ceil((new Date(fin) - new Date(inicio)) / 86400000));
+};
+
+const formatTarjeta = (v) =>
+  v
+    .replace(/\D/g, "")
+    .slice(0, 16)
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+
+const formatExpiry = (v) =>
+  v
+    .replace(/\D/g, "")
+    .slice(0, 4)
+    .replace(/^(\d{2})(\d)/, "$1/$2");
+
+const formatFecha = (iso) =>
+  new Date(iso).toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+// ── Componente ────────────────────────────────────────────────────────────────
+
+function ModalReserva({ vehiculo, onCerrar }) {
+  const { estaAutenticado, usuario } = useAuth();
+  const navigate = useNavigate();
+
+  const [paso, setPaso] = useState("fechas"); // fechas | pago | resultado
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
+  const [nombre, setNombre] = useState(usuario?.nombre ?? "");
+  const [tarjeta, setTarjeta] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [procesando, setProcesando] = useState(false);
+  const [exito, setExito] = useState(false);
+
+  const dias = calcularDias(fechaInicio, fechaFin);
+  const total = dias * vehiculo.precio;
+
+  const handlePagar = (e) => {
+    e.preventDefault();
+    setProcesando(true);
+    // Simulación de 1.8s — aprueba si el vehículo está disponible
+    setTimeout(() => {
+      setProcesando(false);
+      setExito(vehiculo.disponible);
+      setPaso("resultado");
+    }, 1800);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      onClick={(e) => e.target === e.currentTarget && onCerrar()}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <div>
+            <h2 className="font-bold text-gray-900 text-lg">
+              {paso === "resultado"
+                ? exito
+                  ? "¡Reserva confirmada!"
+                  : "Pago rechazado"
+                : "Reservar vehículo"}
+            </h2>
+            {paso !== "resultado" && (
+              <p className="text-sm text-gray-500">
+                {vehiculo.marca} {vehiculo.modelo} · {vehiculo.precio}€/día
+              </p>
+            )}
+          </div>
+          {paso !== "resultado" && (
+            <button
+              onClick={onCerrar}
+              className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            >
+              ×
+            </button>
+          )}
+        </div>
+
+        {/* ── No autenticado ── */}
+        {!estaAutenticado && (
+          <div className="p-8 text-center">
+            <div className="text-5xl mb-4">🔐</div>
+            <p className="text-gray-800 font-semibold mb-1">
+              Necesitas iniciar sesión
+            </p>
+            <p className="text-gray-500 text-sm mb-6">
+              Inicia sesión o crea una cuenta para reservar este vehículo.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={onCerrar}
+                className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="flex-1 bg-amber-500 hover:bg-amber-600 text-black py-2.5 rounded-lg text-sm font-bold transition"
+              >
+                Iniciar sesión
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Paso: fechas ── */}
+        {estaAutenticado && paso === "fechas" && (
+          <div className="p-5 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
+                  Recogida
+                </label>
+                <input
+                  type="date"
+                  min={hoy()}
+                  value={fechaInicio}
+                  onChange={(e) => {
+                    setFechaInicio(e.target.value);
+                    setFechaFin("");
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
+                  Devolución
+                </label>
+                <input
+                  type="date"
+                  min={fechaInicio || hoy()}
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  disabled={!fechaInicio}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent disabled:opacity-40"
+                />
+              </div>
+            </div>
+
+            {dias > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex justify-between items-center">
+                <span className="text-sm text-gray-700">
+                  {dias} día{dias > 1 ? "s" : ""} × {vehiculo.precio}€
+                </span>
+                <span className="font-bold text-gray-900">{total}€ total</span>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={onCerrar}
+                className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={dias <= 0}
+                onClick={() => setPaso("pago")}
+                className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-200 disabled:cursor-not-allowed text-black py-2.5 rounded-lg text-sm font-bold transition"
+              >
+                Continuar →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Paso: pago ── */}
+        {estaAutenticado && paso === "pago" && (
+          <form onSubmit={handlePagar} className="p-5 space-y-4">
+            {/* Resumen */}
+            <div className="bg-gray-50 rounded-lg px-4 py-3 text-sm space-y-1">
+              <div className="flex justify-between text-gray-600">
+                <span>
+                  {vehiculo.marca} {vehiculo.modelo}
+                </span>
+                <span>{dias} días</span>
+              </div>
+              <div className="flex justify-between font-bold text-gray-900 pt-1 border-t border-gray-200">
+                <span>Total a pagar</span>
+                <span className="text-amber-600">{total}€</span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
+                Nombre en la tarjeta
+              </label>
+              <input
+                required
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value.toUpperCase())}
+                placeholder="NOMBRE APELLIDO"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent tracking-wide"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
+                Número de tarjeta
+              </label>
+              <input
+                required
+                value={tarjeta}
+                onChange={(e) => setTarjeta(formatTarjeta(e.target.value))}
+                placeholder="1234 5678 9012 3456"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono tracking-widest focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
+                  Caducidad
+                </label>
+                <input
+                  required
+                  value={expiry}
+                  onChange={(e) => setExpiry(formatExpiry(e.target.value))}
+                  placeholder="MM/AA"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">
+                  CVV
+                </label>
+                <input
+                  required
+                  type="password"
+                  value={cvv}
+                  onChange={(e) =>
+                    setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))
+                  }
+                  placeholder="•••"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setPaso("fechas")}
+                className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+              >
+                ← Atrás
+              </button>
+              <button
+                type="submit"
+                disabled={procesando}
+                className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-black py-2.5 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2"
+              >
+                {procesando ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    Procesando...
+                  </>
+                ) : (
+                  `Pagar ${total}€`
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ── Paso: resultado ── */}
+        {paso === "resultado" && (
+          <div className="p-8 text-center">
+            {exito ? (
+              <>
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  ¡Reserva confirmada!
+                </h3>
+                <p className="text-gray-600 font-medium">
+                  {vehiculo.marca} {vehiculo.modelo}
+                </p>
+                <p className="text-gray-500 text-sm mt-1 mb-5">
+                  {formatFecha(fechaInicio)} → {formatFecha(fechaFin)} ·{" "}
+                  <span className="font-semibold text-gray-700">{total}€</span>
+                </p>
+                <button
+                  onClick={onCerrar}
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-black py-3 rounded-xl font-bold transition"
+                >
+                  Aceptar
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-red-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Pago rechazado
+                </h3>
+                <p className="text-gray-500 text-sm mb-5">
+                  Este vehículo no está disponible en las fechas seleccionadas.
+                  Por favor elige otro vehículo.
+                </p>
+                <button
+                  onClick={onCerrar}
+                  className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition"
+                >
+                  Cerrar
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default ModalReserva;
