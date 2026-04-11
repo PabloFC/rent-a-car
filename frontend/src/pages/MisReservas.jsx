@@ -11,6 +11,16 @@ const formatFecha = (fecha) =>
     year: "numeric",
   });
 
+const calcularDias = (fechaInicio, fechaFin) => {
+  const inicio = new Date(fechaInicio);
+  const fin = new Date(fechaFin);
+  return Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24));
+};
+
+const calcularPrecioPorDia = (total, dias) => {
+  return dias > 0 ? (total / dias).toFixed(2) : 0;
+};
+
 const ESTADO_BADGE = {
   PENDIENTE: "bg-yellow-100 text-yellow-800 border-yellow-200",
   CONFIRMADA: "bg-green-100 text-green-800 border-green-200",
@@ -65,10 +75,32 @@ function MisReservas() {
 
   if (cargando) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-gray-500">Cargando reservas...</p>
+      <div className="min-h-screen bg-gray-50 py-10 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <div className="h-8 bg-gray-300 rounded w-2/3 mb-2 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+              >
+                <div className="flex flex-col sm:flex-row">
+                  <div className="sm:w-44 h-36 sm:h-auto bg-gray-200 flex-shrink-0 animate-pulse"></div>
+                  <div className="flex-1 p-5 space-y-3">
+                    <div className="h-6 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                    </div>
+                    <div className="h-8 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -117,6 +149,14 @@ function MisReservas() {
         <div className="space-y-4">
           {reservas.map((reserva) => {
             const estadoPago = reserva.pago?.estado ?? "PENDIENTE";
+            const diasReserva = calcularDias(
+              reserva.fechaInicio,
+              reserva.fechaFin,
+            );
+            const precioPorDia = calcularPrecioPorDia(
+              reserva.montoTotal,
+              diasReserva,
+            );
             const puedesPagar =
               (reserva.estado === "PENDIENTE" ||
                 reserva.estado === "CONFIRMADA") &&
@@ -130,21 +170,6 @@ function MisReservas() {
                 className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
               >
                 <div className="flex flex-col sm:flex-row">
-                  {/* Imagen del auto */}
-                  <div className="sm:w-44 h-36 sm:h-auto bg-gray-100 flex-shrink-0">
-                    {reserva.auto?.imagen ? (
-                      <img
-                        src={`/uploads/autos/${reserva.auto.imagen}`}
-                        alt={`${reserva.auto.marca} ${reserva.auto.modelo}`}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">
-                        🚗
-                      </div>
-                    )}
-                  </div>
-
                   {/* Información */}
                   <div className="flex-1 p-5">
                     <div className="flex items-start justify-between gap-3 mb-3">
@@ -168,10 +193,10 @@ function MisReservas() {
                       </span>
                     </div>
 
-                    {/* Fechas y monto */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm mb-4">
+                    {/* Fechas y duración */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm mb-4 py-3 border-y border-gray-100">
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5 font-semibold">
                           Recogida
                         </p>
                         <p className="font-medium text-gray-800">
@@ -179,7 +204,7 @@ function MisReservas() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5 font-semibold">
                           Devolución
                         </p>
                         <p className="font-medium text-gray-800">
@@ -187,29 +212,53 @@ function MisReservas() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">
-                          Total
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5 font-semibold">
+                          Duración
                         </p>
-                        <p className="font-bold text-amber-600 text-base">
-                          {Number(reserva.montoTotal).toFixed(2)}€
+                        <p className="font-medium text-gray-800">
+                          {diasReserva} día{diasReserva !== 1 ? "s" : ""}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-0.5 font-semibold">
+                          Precio/Día
+                        </p>
+                        <p className="font-medium text-gray-800">
+                          {precioPorDia}€
                         </p>
                       </div>
                     </div>
 
-                    {/* Badge pago + acciones */}
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <span
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full ${PAGO_BADGE[estadoPago]}`}
-                      >
-                        Pago: {estadoPago}
-                      </span>
+                    {/* Resumen de pago + acciones */}
+                    <div className="bg-gray-50 -mx-5 -mb-5 px-5 py-4 flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xs text-gray-500 uppercase font-semibold">
+                            Total a pagar:
+                          </span>
+                          <span className="text-2xl font-bold text-amber-600">
+                            {Number(reserva.montoTotal).toFixed(2)}€
+                          </span>
+                        </div>
+                        <span
+                          className={`text-xs font-semibold px-3 py-1 rounded-full w-fit ${PAGO_BADGE[estadoPago]}`}
+                        >
+                          {estadoPago === "PAGADO"
+                            ? "✓ Pagado"
+                            : estadoPago === "RECHAZADO"
+                              ? "✗ Pago rechazado"
+                              : estadoPago === "REEMBOLSADO"
+                                ? "↩ Reembolsado"
+                                : "⏳ Pendiente pago"}
+                        </span>
+                      </div>
 
                       <div className="flex gap-2">
                         {puedeCancelar && (
                           <button
                             onClick={() => handleCancelar(reserva.id)}
                             disabled={cancelando === reserva.id}
-                            className="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 hover:border-red-400 px-3 py-1.5 rounded transition-colors disabled:opacity-50"
+                            className="text-sm text-red-600 hover:text-red-800 font-medium border border-red-200 hover:border-red-400 px-4 py-2 rounded transition-colors disabled:opacity-50 hover:bg-red-50"
                           >
                             {cancelando === reserva.id
                               ? "Cancelando..."
@@ -219,7 +268,7 @@ function MisReservas() {
                         {puedesPagar && (
                           <Link
                             to={`/reservas/${reserva.id}/pagar`}
-                            className="text-sm bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-1.5 rounded transition-colors"
+                            className="text-sm bg-amber-500 hover:bg-amber-600 text-white font-semibold px-5 py-2 rounded transition-colors shadow-sm hover:shadow-md"
                           >
                             Pagar ahora
                           </Link>

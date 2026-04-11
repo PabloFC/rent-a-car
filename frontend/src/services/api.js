@@ -1,5 +1,56 @@
 import axios from "axios";
 
+const AUTH_STORAGE_KEY = "rentacar.auth.v1";
+let tokenCache = null;
+
+const parseJSON = (value) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+};
+
+const readLegacyAuth = () => {
+  const token = localStorage.getItem("token");
+  const usuario = parseJSON(localStorage.getItem("usuario"));
+  if (!token || !usuario) return null;
+  return { token, usuario };
+};
+
+export const readAuthStorage = () => {
+  const versioned = parseJSON(localStorage.getItem(AUTH_STORAGE_KEY));
+  if (versioned?.token && versioned?.usuario) {
+    tokenCache = versioned.token;
+    return versioned;
+  }
+
+  const legacy = readLegacyAuth();
+  if (legacy) {
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(legacy));
+    tokenCache = legacy.token;
+    return legacy;
+  }
+
+  tokenCache = null;
+  return null;
+};
+
+export const writeAuthStorage = (authData) => {
+  tokenCache = authData?.token ?? null;
+  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
+  // Compatibilidad temporal con formato anterior.
+  localStorage.setItem("token", authData.token);
+  localStorage.setItem("usuario", JSON.stringify(authData.usuario));
+};
+
+export const clearAuthStorage = () => {
+  tokenCache = null;
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem("token");
+  localStorage.removeItem("usuario");
+};
+
 // Configuración base de axios
 const api = axios.create({
   baseURL: "/api",
@@ -11,7 +62,7 @@ const api = axios.create({
 // Interceptor para añadir el token a todas las peticiones
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = tokenCache ?? readAuthStorage()?.token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -28,8 +79,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expirado o inválido
-      localStorage.removeItem("token");
-      localStorage.removeItem("usuario");
+      clearAuthStorage();
       window.location.href = "/login";
     }
     return Promise.reject(error);
@@ -132,9 +182,7 @@ export const pagosService = {
 // Servicios de administración
 export const adminService = {
   obtenerStats: async () => {
-    const response = await api.get("/admin/stats", {
-      params: { _t: Date.now() },
-    });
+    const response = await api.get("/admin/stats");
     return response.data;
   },
 

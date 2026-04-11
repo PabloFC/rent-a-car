@@ -211,9 +211,16 @@ function ImagenModal({ auto, onCerrar, onGuardado }) {
   const [error, setError] = useState("");
   const inputRef = useRef(null);
 
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
   const handleArchivo = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (preview) URL.revokeObjectURL(preview);
     setArchivo(file);
     setPreview(URL.createObjectURL(file));
   };
