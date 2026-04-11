@@ -4,6 +4,7 @@ import {
   Navigate,
   Route,
   Routes,
+  useLocation,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
@@ -19,6 +20,11 @@ const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminAutos = lazy(() => import("./pages/admin/AdminAutos"));
 const AdminReservas = lazy(() => import("./pages/admin/AdminReservas"));
+
+function RedirectAutos() {
+  const { search } = useLocation();
+  return <Navigate to={`/flota/todos${search}`} replace />;
+}
 
 const routeFallback = (
   <div className="min-h-[50vh] flex items-center justify-center">
@@ -49,10 +55,7 @@ function App() {
                         element={<Checkout />}
                       />
                       <Route path="/flota/:tipo" element={<Flota />} />
-                      <Route
-                        path="/autos"
-                        element={<Navigate to="/flota/economicos" replace />}
-                      />
+                      <Route path="/autos" element={<RedirectAutos />} />
                     </Routes>
                   </main>
                   <Footer />

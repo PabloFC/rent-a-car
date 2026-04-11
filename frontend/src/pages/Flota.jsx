@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useParams, Link, Navigate, useSearchParams } from "react-router-dom";
 import TarjetaVehiculo from "../components/TarjetaVehiculo";
 import Icon from "../components/Icon";
 import { CATEGORIA_LABELS } from "../data/vehiculos";
@@ -9,16 +9,26 @@ const ICON_BACK = "M15 19l-7-7 7-7";
 
 function Flota() {
   const { tipo } = useParams();
+  const [searchParams] = useSearchParams();
   const [autos, setAutos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
-  if (!CATEGORIA_LABELS[tipo]) return <Navigate to="/" replace />;
+  const esTodos = tipo === "todos";
+  const recogida = searchParams.get("recogida") || "";
+  const devolucion = searchParams.get("devolucion") || "";
+  const tieneRangoFechas = Boolean(recogida && devolucion);
+
+  if (!esTodos && !CATEGORIA_LABELS[tipo]) return <Navigate to="/" replace />;
 
   useEffect(() => {
     const cargarAutos = async () => {
       try {
-        const data = await autosService.obtenerTodos();
+        const params =
+          esTodos && tieneRangoFechas
+            ? { fechaInicio: recogida, fechaFin: devolucion }
+            : {};
+        const data = await autosService.obtenerTodos(params);
         setAutos(data.autos || []);
         setError("");
       } catch {
@@ -28,8 +38,9 @@ function Flota() {
       }
     };
 
+    setCargando(true);
     cargarAutos();
-  }, []);
+  }, [esTodos, tieneRangoFechas, recogida, devolucion]);
 
   const categoriaPorPrecio = (precioPorDia) => {
     const precio = Number(precioPorDia);
@@ -39,7 +50,9 @@ function Flota() {
   };
 
   const vehiculos = autos
-    .filter((auto) => categoriaPorPrecio(auto.precioPorDia) === tipo)
+    .filter((auto) =>
+      esTodos ? true : categoriaPorPrecio(auto.precioPorDia) === tipo,
+    )
     .map((auto) => ({
       id: auto.id,
       marca: auto.marca,
@@ -50,13 +63,15 @@ function Flota() {
       puertas: 4,
       transmision: "Automático",
       combustible: "Gasolina",
-      disponible: auto.disponible,
+      disponible: esTodos && tieneRangoFechas ? true : auto.disponible,
       imagen: auto.imagen,
       descripcion: auto.descripcion,
     }));
 
-  const heroCls = `bg-${tipo === "economicos" ? "economico" : tipo}`;
-  const { titulo, subtitulo } = CATEGORIA_LABELS[tipo];
+  const heroCls = esTodos
+    ? "bg-hero"
+    : `bg-${tipo === "economicos" ? "economico" : tipo}`;
+  const { titulo, subtitulo } = CATEGORIA_LABELS[esTodos ? "todos" : tipo];
 
   return (
     <div className="min-h-screen bg-gray-950">
@@ -99,6 +114,11 @@ function Flota() {
                 {vehiculos.length} vehículos
               </span>
             </p>
+            {esTodos && tieneRangoFechas && (
+              <p className="text-xs text-gray-500 mb-6 -mt-4">
+                Disponibilidad para {recogida} a {devolucion}
+              </p>
+            )}
 
             {vehiculos.length === 0 ? (
               <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center">

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { reservasService, pagosService } from "../services/api";
+import { calcularDias } from "../utils/dateHelpers";
+import { formatTarjeta } from "../utils/paymentHelpers";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -10,19 +12,6 @@ const formatFecha = (fecha) =>
     month: "short",
     year: "numeric",
   });
-
-const calcularDias = (inicio, fin) => {
-  const ms = new Date(fin) - new Date(inicio);
-  return Math.ceil(ms / (1000 * 60 * 60 * 24));
-};
-
-// Formatea "1234123412341234" → "1234 1234 1234 1234"
-const formatTarjeta = (value) =>
-  value
-    .replace(/\D/g, "")
-    .slice(0, 16)
-    .replace(/(.{4})/g, "$1 ")
-    .trim();
 
 // ── Componente ────────────────────────────────────────────────────────────────
 

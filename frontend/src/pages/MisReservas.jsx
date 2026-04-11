@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { reservasService } from "../services/api";
+import { calcularDias } from "../utils/dateHelpers";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -10,12 +11,6 @@ const formatFecha = (fecha) =>
     month: "short",
     year: "numeric",
   });
-
-const calcularDias = (fechaInicio, fechaFin) => {
-  const inicio = new Date(fechaInicio);
-  const fin = new Date(fechaFin);
-  return Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24));
-};
 
 const calcularPrecioPorDia = (total, dias) => {
   return dias > 0 ? (total / dias).toFixed(2) : 0;

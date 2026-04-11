@@ -1,4 +1,8 @@
 export const CATEGORIA_LABELS = {
+  todos: {
+    titulo: "Todos los vehículos",
+    subtitulo: "Económicos, SUV y Premium disponibles para tus fechas",
+  },
   economicos: {
     titulo: "Económicos",
     subtitulo: "Perfectos para ciudad y trayectos cortos",

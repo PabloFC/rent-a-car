@@ -1,13 +1,44 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SectionHeader from "../components/SectionHeader";
 import Icon from "../components/Icon";
 import { STATS, VENTAJAS, FLOTA, CAMPOS_FECHA } from "../data/homeData";
-
-// ── Página ────────────────────────────────────────────────────────────────────
+import { getTodayLocalISO } from "../utils/dateHelpers";
 
 function Home() {
+  const navigate = useNavigate();
   const [fechas, setFechas] = useState({ recogida: "", devolucion: "" });
+  const [errorBusqueda, setErrorBusqueda] = useState("");
+  const hoy = getTodayLocalISO();
+
+  const handleBuscar = (e) => {
+    e.preventDefault();
+
+    if (!fechas.recogida || !fechas.devolucion) {
+      setErrorBusqueda("Debes indicar fecha de recogida y devolución.");
+      return;
+    }
+
+    if (fechas.recogida < hoy || fechas.devolucion < hoy) {
+      setErrorBusqueda("No se pueden seleccionar fechas anteriores a hoy.");
+      return;
+    }
+
+    const inicio = new Date(fechas.recogida);
+    const fin = new Date(fechas.devolucion);
+    if (inicio >= fin) {
+      setErrorBusqueda("La devolución debe ser posterior a la recogida.");
+      return;
+    }
+
+    setErrorBusqueda("");
+    const params = new URLSearchParams({
+      recogida: fechas.recogida,
+      devolucion: fechas.devolucion,
+    });
+    navigate(`/autos?${params.toString()}`);
+  };
 
   return (
     <div>
@@ -33,7 +64,10 @@ function Home() {
             </p>
           </div>
 
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 max-w-2xl border border-white/20">
+          <form
+            onSubmit={handleBuscar}
+            className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 max-w-2xl border border-white/20"
+          >
             <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-4">
               Busca tu vehículo
             </p>
@@ -45,24 +79,50 @@ function Home() {
                   </label>
                   <input
                     type="date"
+                    min={key === "devolucion" ? fechas.recogida || hoy : hoy}
                     value={fechas[key]}
-                    onChange={(e) =>
-                      setFechas((f) => ({ ...f, [key]: e.target.value }))
-                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFechas((f) => {
+                        if (key !== "recogida") {
+                          return { ...f, [key]: value };
+                        }
+
+                        // Si cambia recogida, limpiamos devolución si queda inválida.
+                        const devolucionInvalida =
+                          f.devolucion && value && f.devolucion <= value;
+
+                        return {
+                          ...f,
+                          recogida: value,
+                          devolucion: devolucionInvalida ? "" : f.devolucion,
+                        };
+                      });
+                      setErrorBusqueda("");
+                    }}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:ring-2 focus:ring-amber-400 focus:border-transparent transition text-sm"
                   />
                 </div>
               ))}
               <div className="flex items-end">
-                <Link
-                  to="/autos"
+                <button
+                  type="submit"
                   className="w-full bg-amber-500 hover:bg-amber-600 active:scale-95 text-black py-3 px-5 rounded-xl font-bold transition-all text-center text-sm shadow-lg shadow-amber-500/30"
                 >
                   Buscar Vehículos
-                </Link>
+                </button>
               </div>
             </div>
-          </div>
+            {errorBusqueda && (
+              <p
+                role="alert"
+                aria-live="polite"
+                className="mt-3 text-sm text-red-700 bg-red-50 border border-red-300 rounded-lg px-3 py-2 font-medium"
+              >
+                {errorBusqueda}
+              </p>
+            )}
+          </form>
         </div>
       </div>
 

@@ -2,28 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { reservasService } from "../services/api";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-const hoy = () => new Date().toISOString().split("T")[0];
-
-const calcularDias = (inicio, fin) => {
-  if (!inicio || !fin) return 0;
-  return Math.max(0, Math.ceil((new Date(fin) - new Date(inicio)) / 86400000));
-};
-
-const formatTarjeta = (v) =>
-  v
-    .replace(/\D/g, "")
-    .slice(0, 16)
-    .replace(/(.{4})/g, "$1 ")
-    .trim();
-
-const formatExpiry = (v) =>
-  v
-    .replace(/\D/g, "")
-    .slice(0, 4)
-    .replace(/^(\d{2})(\d)/, "$1/$2");
+import { hoy, calcularDias, inicioDelDia } from "../utils/dateHelpers";
+import { formatTarjeta, formatExpiry } from "../utils/paymentHelpers";
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
@@ -47,6 +27,20 @@ function ModalReserva({ vehiculo, onCerrar }) {
   const handlePagar = async (e) => {
     e.preventDefault();
     setErrorReserva("");
+
+    const hoyLocal = hoy();
+    if (fechaInicio < hoyLocal || fechaFin < hoyLocal) {
+      setErrorReserva("No se permiten fechas anteriores a hoy.");
+      return;
+    }
+
+    if (fechaInicio >= fechaFin) {
+      setErrorReserva(
+        "La fecha de devolución debe ser posterior a la recogida.",
+      );
+      return;
+    }
+
     setProcesando(true);
 
     try {

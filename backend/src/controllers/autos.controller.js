@@ -6,11 +6,40 @@ import fs from "fs";
 // ─────────────────────────────────────────
 export const listarAutos = async (req, res) => {
   try {
-    const { disponible } = req.query;
+    const { disponible, fechaInicio, fechaFin } = req.query;
 
     const filtro = {};
     if (disponible !== undefined) {
       filtro.disponible = disponible === "true";
+    }
+
+    // Si llega un rango de fechas, devolvemos autos sin reservas solapadas.
+    if (fechaInicio || fechaFin) {
+      if (!fechaInicio || !fechaFin) {
+        return res.status(400).json({
+          error: "Para filtrar por fechas debes enviar fechaInicio y fechaFin",
+        });
+      }
+
+      const inicio = new Date(fechaInicio);
+      const fin = new Date(fechaFin);
+
+      if (Number.isNaN(inicio.getTime()) || Number.isNaN(fin.getTime())) {
+        return res.status(400).json({ error: "Formato de fecha inválido" });
+      }
+
+      if (inicio >= fin) {
+        return res.status(400).json({
+          error: "La fecha de fin debe ser posterior a la fecha de inicio",
+        });
+      }
+
+      filtro.reservas = {
+        none: {
+          estado: { in: ["PENDIENTE", "CONFIRMADA"] },
+          AND: [{ fechaInicio: { lt: fin } }, { fechaFin: { gt: inicio } }],
+        },
+      };
     }
 
     const autos = await prisma.auto.findMany({

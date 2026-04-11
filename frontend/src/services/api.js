@@ -110,8 +110,8 @@ export const authService = {
 
 // Servicios de autos
 export const autosService = {
-  obtenerTodos: async () => {
-    const response = await api.get("/autos");
+  obtenerTodos: async (params = {}) => {
+    const response = await api.get("/autos", { params });
     return response.data;
   },
 

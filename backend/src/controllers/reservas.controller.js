@@ -10,6 +10,13 @@ const calcularDias = (fechaInicio, fechaFin) => {
   return Math.ceil(ms / (1000 * 60 * 60 * 24));
 };
 
+const inicioDelDia = (fecha) => {
+  const d = new Date(fecha);
+  if (Number.isNaN(d.getTime())) return null;
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
 // ─────────────────────────────────────────
 // POST /api/reservas — Crear reserva (Usuario)
 // ─────────────────────────────────────────
@@ -18,18 +25,32 @@ export const crearReserva = async (req, res) => {
   const usuarioId = req.usuario.id;
 
   if (!autoId || !fechaInicio || !fechaFin) {
-    return res.status(400).json({ error: "autoId, fechaInicio y fechaFin son obligatorios" });
+    return res
+      .status(400)
+      .json({ error: "autoId, fechaInicio y fechaFin son obligatorios" });
   }
 
   const inicio = new Date(fechaInicio);
   const fin = new Date(fechaFin);
+  const inicioDia = inicioDelDia(fechaInicio);
+  const finDia = inicioDelDia(fechaFin);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
 
-  if (inicio >= fin) {
-    return res.status(400).json({ error: "La fecha de fin debe ser posterior a la de inicio" });
+  if (!inicioDia || !finDia) {
+    return res.status(400).json({ error: "Formato de fecha inválido" });
   }
 
-  if (inicio < new Date()) {
-    return res.status(400).json({ error: "La fecha de inicio no puede ser en el pasado" });
+  if (inicio >= fin) {
+    return res
+      .status(400)
+      .json({ error: "La fecha de fin debe ser posterior a la de inicio" });
+  }
+
+  if (inicioDia < hoy || finDia < hoy) {
+    return res
+      .status(400)
+      .json({ error: "No se pueden reservar fechas anteriores a hoy" });
   }
 
   try {
@@ -51,15 +72,14 @@ export const crearReserva = async (req, res) => {
       where: {
         autoId: Number(autoId),
         estado: { in: ["PENDIENTE", "CONFIRMADA"] },
-        AND: [
-          { fechaInicio: { lt: fin } },
-          { fechaFin: { gt: inicio } },
-        ],
+        AND: [{ fechaInicio: { lt: fin } }, { fechaFin: { gt: inicio } }],
       },
     });
 
     if (solapada) {
-      return res.status(409).json({ error: "El auto ya tiene una reserva en esas fechas" });
+      return res
+        .status(409)
+        .json({ error: "El auto ya tiene una reserva en esas fechas" });
     }
 
     // Calcular monto total
@@ -126,7 +146,11 @@ export const obtenerReserva = async (req, res) => {
   try {
     const reserva = await prisma.reserva.findUnique({
       where: { id: Number(id) },
-      include: { auto: true, usuario: { select: { id: true, nombre: true, email: true } }, pago: true },
+      include: {
+        auto: true,
+        usuario: { select: { id: true, nombre: true, email: true } },
+        pago: true,
+      },
     });
 
     if (!reserva) {
@@ -135,7 +159,9 @@ export const obtenerReserva = async (req, res) => {
 
     // Un usuario solo puede ver sus propias reservas
     if (rol !== "ADMIN" && reserva.usuarioId !== usuarioId) {
-      return res.status(403).json({ error: "No tienes permiso para ver esta reserva" });
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para ver esta reserva" });
     }
 
     return res.status(200).json({ reserva });
@@ -162,7 +188,9 @@ export const cancelarReserva = async (req, res) => {
     }
 
     if (reserva.usuarioId !== usuarioId) {
-      return res.status(403).json({ error: "No tienes permiso para cancelar esta reserva" });
+      return res
+        .status(403)
+        .json({ error: "No tienes permiso para cancelar esta reserva" });
     }
 
     if (reserva.estado === "CANCELADA") {
@@ -170,7 +198,9 @@ export const cancelarReserva = async (req, res) => {
     }
 
     if (reserva.estado === "COMPLETADA") {
-      return res.status(409).json({ error: "No se puede cancelar una reserva completada" });
+      return res
+        .status(409)
+        .json({ error: "No se puede cancelar una reserva completada" });
     }
 
     // Cancelar reserva y liberar el auto
@@ -185,7 +215,12 @@ export const cancelarReserva = async (req, res) => {
       }),
     ]);
 
-    return res.status(200).json({ mensaje: "Reserva cancelada correctamente", reserva: reservaCancelada });
+    return res
+      .status(200)
+      .json({
+        mensaje: "Reserva cancelada correctamente",
+        reserva: reservaCancelada,
+      });
   } catch (error) {
     console.error("Error al cancelar reserva:", error);
     return res.status(500).json({ error: "Error interno del servidor" });
@@ -226,7 +261,11 @@ export const cambiarEstado = async (req, res) => {
   const estadosValidos = ["PENDIENTE", "CONFIRMADA", "CANCELADA", "COMPLETADA"];
 
   if (!estado || !estadosValidos.includes(estado)) {
-    return res.status(400).json({ error: `Estado inválido. Valores permitidos: ${estadosValidos.join(", ")}` });
+    return res
+      .status(400)
+      .json({
+        error: `Estado inválido. Valores permitidos: ${estadosValidos.join(", ")}`,
+      });
   }
 
   try {
@@ -253,13 +292,18 @@ export const cambiarEstado = async (req, res) => {
         prisma.auto.update({
           where: { id: reserva.autoId },
           data: { disponible: true },
-        })
+        }),
       );
     }
 
     const [reservaActualizada] = await prisma.$transaction(operaciones);
 
-    return res.status(200).json({ mensaje: "Estado actualizado correctamente", reserva: reservaActualizada });
+    return res
+      .status(200)
+      .json({
+        mensaje: "Estado actualizado correctamente",
+        reserva: reservaActualizada,
+      });
   } catch (error) {
     console.error("Error al cambiar estado:", error);
     return res.status(500).json({ error: "Error interno del servidor" });

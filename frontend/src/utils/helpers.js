@@ -12,13 +12,8 @@ export const formatearPrecio = (precio) => {
   }).format(precio);
 };
 
-// Calcular días entre dos fechas
-export const calcularDias = (fechaInicio, fechaFin) => {
-  const inicio = new Date(fechaInicio);
-  const fin = new Date(fechaFin);
-  const diferencia = fin - inicio;
-  return Math.ceil(diferencia / (1000 * 60 * 60 * 24));
-};
+// Re-exportar calcularDias desde dateHelpers para compatibilidad
+export { calcularDias, getTodayLocalISO, hoy } from "./dateHelpers";
 
 // Validar formato de email
 export const validarEmail = (email) => {
