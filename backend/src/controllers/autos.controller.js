@@ -9,9 +9,6 @@ export const listarAutos = async (req, res) => {
     const { disponible, fechaInicio, fechaFin } = req.query;
 
     const filtro = {};
-    if (disponible !== undefined) {
-      filtro.disponible = disponible === "true";
-    }
 
     // Si llega un rango de fechas, devolvemos autos sin reservas solapadas.
     if (fechaInicio || fechaFin) {
@@ -40,14 +37,32 @@ export const listarAutos = async (req, res) => {
           AND: [{ fechaInicio: { lt: fin } }, { fechaFin: { gt: inicio } }],
         },
       };
+    } else if (disponible !== undefined) {
+      // Si no hay rango de fechas pero pide filtrar por disponibilidad, usa el campo
+      filtro.disponible = disponible === "true";
     }
 
+    // Obtener todos los autos con sus reservas activas
     const autos = await prisma.auto.findMany({
       where: filtro,
+      include: {
+        reservas: {
+          where: {
+            estado: { in: ["PENDIENTE", "CONFIRMADA"] },
+            fechaFin: { gt: new Date() }, // Solo reservas que aún no han vencido
+          },
+        },
+      },
       orderBy: { creadoEn: "desc" },
     });
 
-    return res.status(200).json({ autos });
+    // Calcular disponibilidad real basada en reservas activas
+    const autosConDisponibilidad = autos.map((auto) => ({
+      ...auto,
+      disponible: auto.reservas.length === 0, // Disponible si no tiene reservas activas
+    }));
+
+    return res.status(200).json({ autos: autosConDisponibilidad });
   } catch (error) {
     console.error("Error al listar autos:", error);
     return res.status(500).json({ error: "Error interno del servidor" });
@@ -63,13 +78,27 @@ export const obtenerAuto = async (req, res) => {
   try {
     const auto = await prisma.auto.findUnique({
       where: { id: Number(id) },
+      include: {
+        reservas: {
+          where: {
+            estado: { in: ["PENDIENTE", "CONFIRMADA"] },
+            fechaFin: { gt: new Date() }, // Solo reservas activas
+          },
+        },
+      },
     });
 
     if (!auto) {
       return res.status(404).json({ error: "Auto no encontrado" });
     }
 
-    return res.status(200).json({ auto });
+    // Calcular disponibilidad real
+    const autoConDisponibilidad = {
+      ...auto,
+      disponible: auto.reservas.length === 0,
+    };
+
+    return res.status(200).json({ auto: autoConDisponibilidad });
   } catch (error) {
     console.error("Error al obtener auto:", error);
     return res.status(500).json({ error: "Error interno del servidor" });
