@@ -20,3 +20,32 @@ export const validarEmail = (email) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 };
+
+// Normaliza rutas de imagen de autos para soportar formatos antiguos y nuevos.
+export const normalizarImagenPath = (imagen) => {
+  if (!imagen || typeof imagen !== "string") return "";
+
+  const valor = imagen.trim().replace(/\\/g, "/");
+
+  if (valor.startsWith("http://") || valor.startsWith("https://")) {
+    return valor;
+  }
+
+  if (valor.startsWith("/uploads/autos/")) {
+    return valor;
+  }
+
+  if (valor.startsWith("/uploads/")) {
+    return `/uploads/autos/${valor.replace(/^\/uploads\/+/, "")}`;
+  }
+
+  if (valor.startsWith("uploads/autos/")) {
+    return `/${valor}`;
+  }
+
+  if (valor.startsWith("uploads/")) {
+    return `/uploads/autos/${valor.replace(/^uploads\/+/, "")}`;
+  }
+
+  return `/uploads/autos/${valor.replace(/^\/+/, "")}`;
+};

@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { reservasService, pagosService } from "../services/api";
 import { calcularDias } from "../utils/dateHelpers";
 import { formatTarjeta } from "../utils/paymentHelpers";
+import { normalizarImagenPath } from "../utils/helpers";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -362,7 +363,7 @@ function Checkout() {
               <div className="h-28 bg-gray-100 rounded-lg overflow-hidden mb-4">
                 {reserva.auto?.imagen ? (
                   <img
-                    src={`/uploads/autos/${reserva.auto.imagen}`}
+                    src={normalizarImagenPath(reserva.auto.imagen)}
                     alt={`${reserva.auto.marca} ${reserva.auto.modelo}`}
                     className="w-full h-full object-cover"
                   />

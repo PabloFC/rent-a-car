@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "./Icon";
 import ModalReserva from "./ModalReserva";
 import { COMBUSTIBLE_BADGE } from "../data/vehiculos";
+import { normalizarImagenPath } from "../utils/helpers";
 
 const SPECS_ICONS = {
   asiento:
@@ -14,6 +15,7 @@ const SPECS_ICONS = {
 
 function TarjetaVehiculo({ vehiculo, heroCls }) {
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [imagenError, setImagenError] = useState(false);
 
   const {
     marca,
@@ -34,6 +36,12 @@ function TarjetaVehiculo({ vehiculo, heroCls }) {
     { icon: SPECS_ICONS.combustible, label: combustible },
   ];
 
+  useEffect(() => {
+    setImagenError(false);
+  }, [vehiculo.id, vehiculo.imagen]);
+
+  const imagenVehiculo = normalizarImagenPath(vehiculo.imagen);
+
   return (
     <>
       {modalAbierto && (
@@ -43,7 +51,17 @@ function TarjetaVehiculo({ vehiculo, heroCls }) {
         />
       )}
       <div className="group bg-gray-800 rounded-2xl overflow-hidden hover:ring-2 hover:ring-amber-500/50 hover:-translate-y-1 transition-all duration-300 flex flex-col">
-        <div className={`h-44 bg-cover relative ${heroCls}`}>
+        <div className="h-44 relative">
+          {imagenVehiculo && !imagenError ? (
+            <img
+              src={imagenVehiculo}
+              alt={`${marca} ${modelo}`}
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={() => setImagenError(true)}
+            />
+          ) : (
+            <div className={`absolute inset-0 bg-cover ${heroCls}`} />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           {!disponible && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

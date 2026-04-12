@@ -1,15 +1,5 @@
 import Icon from "../../../../components/Icon";
-
-const normalizarImagenPath = (imagen) => {
-  if (!imagen) return "";
-  if (imagen.startsWith("http://") || imagen.startsWith("https://")) {
-    return imagen;
-  }
-  if (imagen.startsWith("/uploads/")) {
-    return imagen;
-  }
-  return `/uploads/autos/${imagen.replace(/^\/+/, "")}`;
-};
+import { normalizarImagenPath } from "../../../../utils/helpers";
 
 function AutosTable({
   autos,

@@ -1,5 +1,25 @@
 import prisma from "../lib/prisma.js";
 import fs from "fs";
+import path from "path";
+
+const resolverRutaImagenLocal = (imagen) => {
+  if (!imagen || typeof imagen !== "string") return null;
+
+  const limpia = imagen.trim().replace(/\\/g, "/").replace(/^\/+/, "");
+  const nombreArchivo = path.basename(limpia);
+
+  const candidatas = [
+    limpia,
+    limpia.replace(/^uploads\//, ""),
+    limpia.startsWith("uploads/") ? limpia : `uploads/${limpia}`,
+    limpia.startsWith("uploads/autos/")
+      ? limpia
+      : `uploads/autos/${nombreArchivo}`,
+  ];
+
+  const ruta = candidatas.find((rutaLocal) => fs.existsSync(rutaLocal));
+  return ruta || null;
+};
 
 // ─────────────────────────────────────────
 // GET /api/autos — Listar todos
@@ -190,8 +210,8 @@ export const eliminarAuto = async (req, res) => {
 
     // Eliminar imagen si existe
     if (auto.imagen) {
-      const rutaImagen = auto.imagen.replace("/uploads/", "uploads/");
-      if (fs.existsSync(rutaImagen)) {
+      const rutaImagen = resolverRutaImagenLocal(auto.imagen);
+      if (rutaImagen) {
         fs.unlinkSync(rutaImagen);
       }
     }
@@ -228,13 +248,13 @@ export const subirImagen = async (req, res) => {
 
     // Eliminar imagen anterior si existe
     if (auto.imagen) {
-      const rutaAnterior = auto.imagen.replace("/uploads/", "uploads/");
-      if (fs.existsSync(rutaAnterior)) {
+      const rutaAnterior = resolverRutaImagenLocal(auto.imagen);
+      if (rutaAnterior) {
         fs.unlinkSync(rutaAnterior);
       }
     }
 
-    const urlImagen = `/uploads/${req.file.filename}`;
+    const urlImagen = `/uploads/autos/${req.file.filename}`;
 
     const autoActualizado = await prisma.auto.update({
       where: { id: Number(id) },
