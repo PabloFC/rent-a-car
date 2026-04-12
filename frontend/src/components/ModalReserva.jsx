@@ -5,8 +5,6 @@ import { reservasService } from "../services/api";
 import { hoy, calcularDias, inicioDelDia } from "../utils/dateHelpers";
 import { formatTarjeta, formatExpiry } from "../utils/paymentHelpers";
 
-// ── Componente ────────────────────────────────────────────────────────────────
-
 function ModalReserva({ vehiculo, onCerrar }) {
   const { estaAutenticado, usuario } = useAuth();
   const navigate = useNavigate();
