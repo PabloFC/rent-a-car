@@ -1,23 +1,7 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { createClient } from "@supabase/supabase-js";
 
-// Crear carpeta uploads si no existe
-const uploadsDir = "uploads/autos";
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const nombre = `auto-${Date.now()}${ext}`;
-    cb(null, nombre);
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   const tiposPermitidos = ["image/jpeg", "image/png", "image/webp"];
@@ -33,3 +17,8 @@ export const upload = multer({
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB máximo
 });
+
+export const supabaseClient = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY,
+);

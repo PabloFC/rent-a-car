@@ -1,6 +1,9 @@
 import prisma from "../lib/prisma.js";
 import fs from "fs";
 import path from "path";
+import { supabaseClient } from "../middlewares/upload.middleware.js";
+
+const SUPABASE_BUCKET = "autos";
 
 const resolverRutaImagenLocal = (imagen) => {
   if (!imagen || typeof imagen !== "string") return null;
@@ -19,6 +22,29 @@ const resolverRutaImagenLocal = (imagen) => {
 
   const ruta = candidatas.find((rutaLocal) => fs.existsSync(rutaLocal));
   return ruta || null;
+};
+
+const extraerPathSupabase = (urlImagen) => {
+  if (!urlImagen || typeof urlImagen !== "string") return null;
+
+  const marcador = `/storage/v1/object/public/${SUPABASE_BUCKET}/`;
+  const idx = urlImagen.indexOf(marcador);
+  if (idx === -1) return null;
+
+  return decodeURIComponent(urlImagen.slice(idx + marcador.length));
+};
+
+const borrarImagenSupabase = async (urlImagen) => {
+  const objectPath = extraerPathSupabase(urlImagen);
+  if (!objectPath) return;
+
+  const { error } = await supabaseClient.storage
+    .from(SUPABASE_BUCKET)
+    .remove([objectPath]);
+
+  if (error) {
+    console.warn("No se pudo borrar imagen de Supabase:", error.message);
+  }
 };
 
 // ─────────────────────────────────────────
@@ -210,6 +236,7 @@ export const eliminarAuto = async (req, res) => {
 
     // Eliminar imagen si existe
     if (auto.imagen) {
+      await borrarImagenSupabase(auto.imagen);
       const rutaImagen = resolverRutaImagenLocal(auto.imagen);
       if (rutaImagen) {
         fs.unlinkSync(rutaImagen);
@@ -241,20 +268,41 @@ export const subirImagen = async (req, res) => {
     });
 
     if (!auto) {
-      // Eliminar el archivo subido si el auto no existe
-      fs.unlinkSync(req.file.path);
       return res.status(404).json({ error: "Auto no encontrado" });
     }
 
     // Eliminar imagen anterior si existe
     if (auto.imagen) {
+      await borrarImagenSupabase(auto.imagen);
       const rutaAnterior = resolverRutaImagenLocal(auto.imagen);
       if (rutaAnterior) {
         fs.unlinkSync(rutaAnterior);
       }
     }
 
-    const urlImagen = `/uploads/autos/${req.file.filename}`;
+    const nombreBase = path
+      .basename(req.file.originalname)
+      .replace(/[^a-zA-Z0-9._-]/g, "_");
+    const nombreArchivo = `autos/${Date.now()}-${nombreBase}`;
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from(SUPABASE_BUCKET)
+      .upload(nombreArchivo, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      return res
+        .status(500)
+        .json({ error: `Error al subir imagen: ${uploadError.message}` });
+    }
+
+    const { data: publicData } = supabaseClient.storage
+      .from(SUPABASE_BUCKET)
+      .getPublicUrl(nombreArchivo);
+
+    const urlImagen = publicData.publicUrl;
 
     const autoActualizado = await prisma.auto.update({
       where: { id: Number(id) },
