@@ -1,6 +1,6 @@
 # Deployment checklist (RentaCar)
 
-Fecha de estado: 2026-04-18
+Fecha de estado: 2026-04-25
 
 ## 1) Supabase (Database + Storage)
 
@@ -34,15 +34,20 @@ Variables requeridas en backend:
 - `SUPABASE_SERVICE_ROLE_KEY` (recomendado para backend)
 - `NODE_ENV=production`
 
-## 3) Railway (deploy backend)
+## 3) Render (deploy backend)
 
-- [ ] Crear proyecto en Railway
-- [ ] Conectar repo de GitHub
-- [ ] Configurar Root Directory: `backend`
-- [ ] Configurar Start Command: `node src/index.js`
-- [ ] Cargar variables de entorno (DATABASE_URL, JWT_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, NODE_ENV)
-- [ ] Deploy inicial exitoso
-- [ ] Verificar endpoint health (`/` o `/api/...`) en URL publica de Railway
+- [x] Crear proyecto en Render
+- [x] Conectar repo de GitHub
+- [x] Configurar Root Directory: `backend`
+- [x] Configurar Build Command: `npm install`
+- [x] Configurar Start Command: `npm start`
+- [x] Cargar variables de entorno (DATABASE_URL, JWT_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, NODE_ENV)
+- [x] Deploy inicial exitoso
+- [x] Verificar endpoint health (`/`) en URL publica de Render
+
+URL backend activa:
+
+- `https://rent-a-car-hwhb.onrender.com`
 
 ## 4) Vercel (deploy frontend)
 
@@ -51,13 +56,13 @@ Variables requeridas en backend:
 - [ ] Configurar Root Directory: `frontend`
 - [ ] Build command: `npm run build`
 - [ ] Output directory: `dist`
-- [ ] Configurar `VITE_API_URL=https://<tu-backend-railway>/api`
+- [ ] Configurar `VITE_API_URL=https://rent-a-car-hwhb.onrender.com/api`
 - [ ] Deploy inicial exitoso
 
 ## 5) Frontend - estado de codigo
 
 - [x] Hacer `baseURL` configurable con `VITE_API_URL` en axios
-- [ ] Confirmar que login/listado/autos/reservas funcionan contra backend de Railway
+- [ ] Confirmar que login/listado/autos/reservas funcionan contra backend de Render
 
 ## 6) Verificaciones finales
 
@@ -71,7 +76,7 @@ Variables requeridas en backend:
 
 ## 7) Flujo de actualizaciones automaticas
 
-- [ ] Confirmar que cada `git push` redepliega backend en Railway
+- [ ] Confirmar que cada `git push` redepliega backend en Render
 - [ ] Confirmar que cada `git push` redepliega frontend en Vercel
 
 ---
