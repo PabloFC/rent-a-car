@@ -51,13 +51,17 @@ URL backend activa:
 
 ## 4) Vercel (deploy frontend)
 
-- [ ] Crear proyecto en Vercel
-- [ ] Conectar repo de GitHub
-- [ ] Configurar Root Directory: `frontend`
-- [ ] Build command: `npm run build`
-- [ ] Output directory: `dist`
-- [ ] Configurar `VITE_API_URL=https://rent-a-car-hwhb.onrender.com/api`
-- [ ] Deploy inicial exitoso
+- [x] Crear proyecto en Vercel
+- [x] Conectar repo de GitHub
+- [x] Configurar Root Directory: `frontend`
+- [x] Build command: `npm run build`
+- [x] Output directory: `dist`
+- [x] Configurar `VITE_API_URL=https://rent-a-car-hwhb.onrender.com/api`
+- [x] Deploy inicial exitoso
+
+URL frontend activa:
+
+- `https://rent-a-car-mocha.vercel.app/`
 
 ## 5) Frontend - estado de codigo
 
