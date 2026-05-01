@@ -155,7 +155,7 @@ export const obtenerAuto = async (req, res) => {
 // POST /api/autos — Crear (Admin)
 // ─────────────────────────────────────────
 export const crearAuto = async (req, res) => {
-  const { marca, modelo, anio, precioPorDia, descripcion } = req.body;
+  const { marca, modelo, anio, precioPorDia, descripcion, categoria } = req.body;
 
   if (!marca || !modelo || !anio || !precioPorDia) {
     return res
@@ -171,6 +171,7 @@ export const crearAuto = async (req, res) => {
         anio: Number(anio),
         precioPorDia: Number(precioPorDia),
         descripcion: descripcion || null,
+        categoria: categoria || "ECONOMICO",
       },
     });
 
@@ -186,7 +187,7 @@ export const crearAuto = async (req, res) => {
 // ─────────────────────────────────────────
 export const actualizarAuto = async (req, res) => {
   const { id } = req.params;
-  const { marca, modelo, anio, precioPorDia, descripcion, disponible } =
+  const { marca, modelo, anio, precioPorDia, descripcion, disponible, categoria } =
     req.body;
 
   try {
@@ -207,6 +208,7 @@ export const actualizarAuto = async (req, res) => {
         ...(precioPorDia && { precioPorDia: Number(precioPorDia) }),
         ...(descripcion !== undefined && { descripcion }),
         ...(disponible !== undefined && { disponible: Boolean(disponible) }),
+        ...(categoria && { categoria }),
       },
     });
 
@@ -234,18 +236,23 @@ export const eliminarAuto = async (req, res) => {
       return res.status(404).json({ error: "Auto no encontrado" });
     }
 
-    // Eliminar imagen si existe
     if (auto.imagen) {
-      await borrarImagenSupabase(auto.imagen);
-      const rutaImagen = resolverRutaImagenLocal(auto.imagen);
-      if (rutaImagen) {
-        fs.unlinkSync(rutaImagen);
+      const rutaLocal = resolverRutaImagenLocal(auto.imagen);
+      if (rutaLocal && fs.existsSync(rutaLocal)) {
+        fs.unlinkSync(rutaLocal);
+      }
+      if (auto.imagen.includes("supabase")) {
+        await borrarImagenSupabase(auto.imagen);
       }
     }
 
-    await prisma.auto.delete({ where: { id: Number(id) } });
+    await prisma.auto.delete({
+      where: { id: Number(id) },
+    });
 
-    return res.status(200).json({ mensaje: "Auto eliminado correctamente" });
+    return res
+      .status(200)
+      .json({ mensaje: "Auto eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar auto:", error);
     return res.status(500).json({ error: "Error interno del servidor" });
@@ -253,14 +260,10 @@ export const eliminarAuto = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
-// POST /api/autos/:id/imagen — Subir imagen (Admin)
+// POST /api/autos/:id/imagen — Subir imagen
 // ─────────────────────────────────────────
-export const subirImagen = async (req, res) => {
+export const subirImagenAuto = async (req, res) => {
   const { id } = req.params;
-
-  if (!req.file) {
-    return res.status(400).json({ error: "No se proporcionó ninguna imagen" });
-  }
 
   try {
     const auto = await prisma.auto.findUnique({
@@ -271,38 +274,21 @@ export const subirImagen = async (req, res) => {
       return res.status(404).json({ error: "Auto no encontrado" });
     }
 
-    // Eliminar imagen anterior si existe
+    if (!req.file) {
+      return res.status(400).json({ error: "No se proporcionó archivo" });
+    }
+
     if (auto.imagen) {
-      await borrarImagenSupabase(auto.imagen);
-      const rutaAnterior = resolverRutaImagenLocal(auto.imagen);
-      if (rutaAnterior) {
-        fs.unlinkSync(rutaAnterior);
+      const rutaLocal = resolverRutaImagenLocal(auto.imagen);
+      if (rutaLocal && fs.existsSync(rutaLocal)) {
+        fs.unlinkSync(rutaLocal);
+      }
+      if (auto.imagen.includes("supabase")) {
+        await borrarImagenSupabase(auto.imagen);
       }
     }
 
-    const nombreBase = path
-      .basename(req.file.originalname)
-      .replace(/[^a-zA-Z0-9._-]/g, "_");
-    const nombreArchivo = `autos/${Date.now()}-${nombreBase}`;
-
-    const { error: uploadError } = await supabaseClient.storage
-      .from(SUPABASE_BUCKET)
-      .upload(nombreArchivo, req.file.buffer, {
-        contentType: req.file.mimetype,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      return res
-        .status(500)
-        .json({ error: `Error al subir imagen: ${uploadError.message}` });
-    }
-
-    const { data: publicData } = supabaseClient.storage
-      .from(SUPABASE_BUCKET)
-      .getPublicUrl(nombreArchivo);
-
-    const urlImagen = publicData.publicUrl;
+    const urlImagen = req.file.path || `uploads/autos/${req.file.filename}`;
 
     const autoActualizado = await prisma.auto.update({
       where: { id: Number(id) },
@@ -311,7 +297,6 @@ export const subirImagen = async (req, res) => {
 
     return res.status(200).json({
       mensaje: "Imagen subida correctamente",
-      imagen: urlImagen,
       auto: autoActualizado,
     });
   } catch (error) {
