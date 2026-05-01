@@ -155,7 +155,8 @@ export const obtenerAuto = async (req, res) => {
 // POST /api/autos — Crear (Admin)
 // ─────────────────────────────────────────
 export const crearAuto = async (req, res) => {
-  const { marca, modelo, anio, precioPorDia, descripcion, categoria } = req.body;
+  const { marca, modelo, anio, precioPorDia, descripcion, categoria } =
+    req.body;
 
   if (!marca || !modelo || !anio || !precioPorDia) {
     return res
@@ -187,8 +188,15 @@ export const crearAuto = async (req, res) => {
 // ─────────────────────────────────────────
 export const actualizarAuto = async (req, res) => {
   const { id } = req.params;
-  const { marca, modelo, anio, precioPorDia, descripcion, disponible, categoria } =
-    req.body;
+  const {
+    marca,
+    modelo,
+    anio,
+    precioPorDia,
+    descripcion,
+    disponible,
+    categoria,
+  } = req.body;
 
   try {
     const autoExistente = await prisma.auto.findUnique({
@@ -250,9 +258,7 @@ export const eliminarAuto = async (req, res) => {
       where: { id: Number(id) },
     });
 
-    return res
-      .status(200)
-      .json({ mensaje: "Auto eliminado correctamente" });
+    return res.status(200).json({ mensaje: "Auto eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar auto:", error);
     return res.status(500).json({ error: "Error interno del servidor" });
@@ -262,7 +268,7 @@ export const eliminarAuto = async (req, res) => {
 // ─────────────────────────────────────────
 // POST /api/autos/:id/imagen — Subir imagen
 // ─────────────────────────────────────────
-export const subirImagenAuto = async (req, res) => {
+export const subirImagen = async (req, res) => {
   const { id } = req.params;
 
   try {
