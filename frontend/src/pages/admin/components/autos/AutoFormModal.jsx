@@ -216,6 +216,14 @@ function AutoFormModal({ auto, onCerrar, onGuardado }) {
               <option value="PREMIUM">Premium</option>
             </select>
           </div>
+
+          <div>
+            <label
+              htmlFor="descripcion"
+              className="block text-sm font-semibold text-gray-700 mb-1.5"
+            >
+              Descripción
+            </label>
             <textarea
               id="descripcion"
               name="descripcion"
