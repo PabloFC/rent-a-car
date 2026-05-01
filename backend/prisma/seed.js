@@ -11,6 +11,7 @@ const AUTOS_DEMO = [
     anio: 2024,
     precioPorDia: 25,
     descripcion: "Ideal para ciudad y trayectos cortos",
+    categoria: "ECONOMICO",
     disponible: true,
   },
   {
@@ -19,6 +20,7 @@ const AUTOS_DEMO = [
     anio: 2024,
     precioPorDia: 28,
     descripcion: "Compacto y eficiente",
+    categoria: "ECONOMICO",
     disponible: true,
   },
   {
@@ -27,6 +29,7 @@ const AUTOS_DEMO = [
     anio: 2023,
     precioPorDia: 27,
     descripcion: "Confort urbano",
+    categoria: "ECONOMICO",
     disponible: true,
   },
   // SUV
@@ -36,6 +39,7 @@ const AUTOS_DEMO = [
     anio: 2024,
     precioPorDia: 65,
     descripcion: "Espaciosa para viajes familiares",
+    categoria: "SUV",
     disponible: true,
   },
   {
@@ -44,6 +48,7 @@ const AUTOS_DEMO = [
     anio: 2024,
     precioPorDia: 72,
     descripcion: "SUV premium de uso mixto",
+    categoria: "SUV",
     disponible: true,
   },
   {
@@ -52,6 +57,7 @@ const AUTOS_DEMO = [
     anio: 2024,
     precioPorDia: 68,
     descripcion: "Comoda y segura",
+    categoria: "SUV",
     disponible: true,
   },
   // Premium
@@ -61,6 +67,7 @@ const AUTOS_DEMO = [
     anio: 2024,
     precioPorDia: 125,
     descripcion: "Lujo y alto rendimiento",
+    categoria: "PREMIUM",
     disponible: true,
   },
   {
@@ -69,6 +76,7 @@ const AUTOS_DEMO = [
     anio: 2024,
     precioPorDia: 135,
     descripcion: "Confort ejecutivo",
+    categoria: "PREMIUM",
     disponible: true,
   },
   {
@@ -77,6 +85,7 @@ const AUTOS_DEMO = [
     anio: 2024,
     precioPorDia: 130,
     descripcion: "Tecnologia y dinamica premium",
+    categoria: "PREMIUM",
     disponible: true,
   },
 ];
