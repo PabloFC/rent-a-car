@@ -11,6 +11,28 @@ datasource db {
 }
 
 // ─────────────────────────────────────────
+// ENUMERACIONES
+// ─────────────────────────────────────────
+
+enum CategoriaAuto {
+    ECONOMICO
+    SUV
+    PREMIUM
+}
+
+enum Rol {
+    USER
+    ADMIN
+}
+
+enum EstadoReserva {
+    PENDIENTE
+    CONFIRMADA
+    CANCELADA
+    COMPLETADA
+}
+
+// ─────────────────────────────────────────
 // MODELOS
 // ─────────────────────────────────────────
 
@@ -28,15 +50,16 @@ model Usuario {
 }
 
 model Auto {
-    id           Int      @id @default(autoincrement())
+    id           Int           @id @default(autoincrement())
     marca        String
     modelo       String
     anio         Int
-    precioPorDia Decimal  @db.Decimal(10, 2)
+    precioPorDia Decimal       @db.Decimal(10, 2)
     imagen       String?
-    disponible   Boolean  @default(true)
+    disponible   Boolean       @default(true)
     descripcion  String?
-    creadoEn     DateTime @default(now())
+    categoria    CategoriaAuto @default(ECONOMICO)
+    creadoEn     DateTime      @default(now())
 
     reservas Reserva[]
 
@@ -76,18 +99,6 @@ model Pago {
 // ─────────────────────────────────────────
 // ENUMS
 // ─────────────────────────────────────────
-
-enum Rol {
-    USER
-    ADMIN
-}
-
-enum EstadoReserva {
-    PENDIENTE
-    CONFIRMADA
-    CANCELADA
-    COMPLETADA
-}
 
 enum EstadoPago {
     PENDIENTE

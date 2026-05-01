@@ -7,6 +7,7 @@ const FORM_VACIO = {
   anio: "",
   precioPorDia: "",
   descripcion: "",
+  categoria: "ECONOMICO",
   disponible: true,
 };
 
@@ -51,6 +52,9 @@ function AutoFormModal({ auto, onCerrar, onGuardado }) {
     if (!Number.isFinite(precio) || precio < 0 || precio > 10000) {
       return "El precio por día debe estar entre 0 y 10000.";
     }
+    if (!form.categoria || !["ECONOMICO", "SUV", "PREMIUM"].includes(form.categoria)) {
+      return "Debe seleccionar una categoría válida.";
+    }
     return "";
   };
 
@@ -67,6 +71,7 @@ function AutoFormModal({ auto, onCerrar, onGuardado }) {
       marca: form.marca.trim(),
       modelo: form.modelo.trim(),
       descripcion: (form.descripcion || "").trim(),
+      categoria: form.categoria,
       anio: Number(form.anio),
       precioPorDia: Number(form.precioPorDia),
     };
@@ -193,11 +198,24 @@ function AutoFormModal({ auto, onCerrar, onGuardado }) {
 
           <div>
             <label
-              htmlFor="descripcion"
+              htmlFor="categoria"
               className="block text-sm font-semibold text-gray-700 mb-1.5"
             >
-              Descripción
+              Categoría *
             </label>
+            <select
+              id="categoria"
+              name="categoria"
+              value={form.categoria}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            >
+              <option value="ECONOMICO">Económico</option>
+              <option value="SUV">SUV</option>
+              <option value="PREMIUM">Premium</option>
+            </select>
+          </div>
             <textarea
               id="descripcion"
               name="descripcion"
