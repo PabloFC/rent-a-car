@@ -5,18 +5,8 @@ generator client {
 }
 
 datasource db {
-    provider  = "postgresql"
-    url       = env("DATABASE_URL")
-}
-
-// ─────────────────────────────────────────
-// ENUMERACIONES
-// ─────────────────────────────────────────
-
-enum CategoriaAuto {
-    ECONOMICO
-    SUV
-    PREMIUM
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 enum Rol {
@@ -57,7 +47,7 @@ model Auto {
     imagen       String?
     disponible   Boolean       @default(true)
     descripcion  String?
-    categoria    CategoriaAuto @default(ECONOMICO)
+    categoria    String        @default("ECONOMICO")
     creadoEn     DateTime      @default(now())
 
     reservas Reserva[]
