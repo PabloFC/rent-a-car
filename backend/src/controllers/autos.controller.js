@@ -284,6 +284,32 @@ export const subirImagen = async (req, res) => {
       return res.status(400).json({ error: "No se proporcionó archivo" });
     }
 
+    const extension = path.extname(req.file.originalname || "").toLowerCase();
+    const nombreArchivo = `${Date.now()}-${Math.random().toString(36).slice(2)}${extension || ".jpg"}`;
+    const rutaArchivo = `autos/${nombreArchivo}`;
+
+    const { error: errorSubida } = await supabaseClient.storage
+      .from(SUPABASE_BUCKET)
+      .upload(rutaArchivo, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false,
+      });
+
+    if (errorSubida) {
+      console.error("Error al subir imagen a Supabase:", errorSubida);
+      return res.status(500).json({ error: "No se pudo subir la imagen" });
+    }
+
+    const { data: urlData } = supabaseClient.storage
+      .from(SUPABASE_BUCKET)
+      .getPublicUrl(rutaArchivo);
+
+    const urlImagen = urlData?.publicUrl;
+
+    if (!urlImagen) {
+      return res.status(500).json({ error: "No se pudo obtener la URL de la imagen" });
+    }
+
     if (auto.imagen) {
       const rutaLocal = resolverRutaImagenLocal(auto.imagen);
       if (rutaLocal && fs.existsSync(rutaLocal)) {
@@ -293,8 +319,6 @@ export const subirImagen = async (req, res) => {
         await borrarImagenSupabase(auto.imagen);
       }
     }
-
-    const urlImagen = req.file.path || `uploads/autos/${req.file.filename}`;
 
     const autoActualizado = await prisma.auto.update({
       where: { id: Number(id) },
